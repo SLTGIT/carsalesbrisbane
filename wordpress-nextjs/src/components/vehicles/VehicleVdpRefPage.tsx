@@ -269,10 +269,7 @@ export default function VehicleVdpRefPage({
                 </nav>
                 {showNewArrival ? (
                   <p className="mb-2">
-                    <span className="vdp-ref-new-arrival">
-                      <i className="bi bi-stars" aria-hidden />
-                      New Arrival
-                    </span>
+                    <span className="vdp-ref-new-arrival">New Arrival</span>
                   </p>
                 ) : null}
                 <h1 className="vdp-ref-page-title display-6 fw-bold cs-title-tight mb-2">

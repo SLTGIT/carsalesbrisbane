@@ -71,10 +71,15 @@ export default function VehicleCard({
 
   const newArrivalBadge =
     showNewArrivalBadge && isNewArrival(listing.last_updated) ? (
-      <span className="inventory-card-new-arrival-badge">
-        <i className="bi bi-stars" aria-hidden />
-        New Arrival
-      </span>
+      <span className="inventory-card-new-arrival-badge">New Arrival</span>
+    ) : null;
+
+  const badgeRow =
+    usedBadge || newArrivalBadge ? (
+      <div className="inventory-card-badge-row">
+        {usedBadge}
+        {newArrivalBadge}
+      </div>
     ) : null;
 
   const imageWrap = (
@@ -111,8 +116,7 @@ export default function VehicleCard({
         {imageWrap}
         <div className="inventory-card-list-main">
           <div className="inventory-card-title-block inventory-card-title-block--list">
-            {usedBadge}
-            {newArrivalBadge}
+            {badgeRow}
             <Link
               href={href}
               className="inventory-card-headline-link inventory-card-headline-link--list"
@@ -195,8 +199,7 @@ export default function VehicleCard({
       <div className="inventory-card-body">
         <div className="inventory-card-main">
           <div className="inventory-card-title-block">
-            {usedBadge}
-            {newArrivalBadge}
+            {badgeRow}
             <Link href={href} className="inventory-card-headline-link">
               <h3 className="inventory-card-headline">{headline}</h3>
             </Link>
