@@ -4,13 +4,11 @@ import VehicleCard from "./VehicleCard";
 interface VehicleGridProps {
   listings: VehicleListing[];
   view?: "grid" | "list";
-  showNewArrivalBadge?: boolean;
 }
 
 export default function VehicleGrid({
   listings,
   view = "grid",
-  showNewArrivalBadge = false,
 }: VehicleGridProps) {
   return (
     <div
@@ -23,11 +21,7 @@ export default function VehicleGrid({
           role="listitem"
           className={view === "grid" ? "inventory-grid-item" : undefined}
         >
-          <VehicleCard
-            listing={listing}
-            view={view}
-            showNewArrivalBadge={showNewArrivalBadge}
-          />
+          <VehicleCard listing={listing} view={view} />
         </div>
       ))}
     </div>

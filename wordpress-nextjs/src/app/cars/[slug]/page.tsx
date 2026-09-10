@@ -231,7 +231,6 @@ export default async function VehicleDetailPage({
         similarItems={similar}
         shareUrl={pageUrlHttps}
         cmsOverview={seo.overview}
-        lastUpdated={listing.last_updated ?? null}
       />
     </>
   );

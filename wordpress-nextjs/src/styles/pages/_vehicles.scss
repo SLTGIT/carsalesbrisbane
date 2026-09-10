@@ -1169,38 +1169,6 @@ $vehicles-primary-dark: color.adjust($color-primary, $lightness: -10%);
     }
 }
 
-// Badges above the title: Used on the left, New Arrival pinned to the right
-// end of the same row (it still sits right-aligned when there is no Used badge).
-.inventory-card-badge-row {
-    display: flex;
-    align-items: center;
-    gap: 0.4rem;
-    margin-bottom: 0.5rem;
-
-    .inventory-card-used-badge {
-        margin-bottom: 0;
-    }
-
-    .inventory-card-new-arrival-badge {
-        margin-left: auto;
-    }
-}
-
-// Same box as the Used badge; orange to match the VDP "New Arrival" badge.
-.inventory-card-new-arrival-badge {
-    display: inline-block;
-    font-size: 0.65rem;
-    font-weight: 700;
-    letter-spacing: 0.06em;
-    text-transform: uppercase;
-    padding: 0.32rem 0.6rem;
-    border-radius: 6px;
-    line-height: 1.2;
-    color: #fff;
-    background: #ea580c;
-    border: 1px solid #ea580c;
-}
-
 .inventory-card-used-badge {
     font-size: 0.65rem;
     font-weight: 700;

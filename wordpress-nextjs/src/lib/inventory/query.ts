@@ -9,7 +9,6 @@ import {
   vehicleDisplayFuelType,
   vehicleDisplayTransmission,
 } from "@/lib/inventory/vehicle-specs";
-import { dealerVehicleLastUpdatedMs } from "@/lib/inventory/new-arrival";
 import {
   mergePathAugmentIntoFilters,
   pathSlugForInventoryListing,
@@ -36,7 +35,6 @@ function parseIntOrNull(s: string | undefined): number | null {
 }
 
 const SORTS: InventorySort[] = [
-  "new-arrival",
   "best",
   "price-asc",
   "price-desc",
@@ -185,18 +183,6 @@ export function sortDealerVehicles(
 ): DealerVehicle[] {
   const copy = [...vehicles];
   switch (sort) {
-    case "new-arrival": {
-      // Most recently updated first; undated stock falls to the end, newest year first.
-      const updated = new Map(
-        copy.map((v) => [v, dealerVehicleLastUpdatedMs(v) ?? -Infinity]),
-      );
-      copy.sort(
-        (a, b) =>
-          updated.get(b)! - updated.get(a)! ||
-          b.ManufactureYear - a.ManufactureYear,
-      );
-      break;
-    }
     case "price-asc":
       copy.sort((a, b) => priceNum(a) - priceNum(b));
       break;

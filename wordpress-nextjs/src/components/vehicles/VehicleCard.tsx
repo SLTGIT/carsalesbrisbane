@@ -6,7 +6,6 @@ import {
   vehicleCardFeatureTags,
 } from "@/lib/inventory/card-display";
 import { buildListingSpecRows } from "@/lib/inventory/vehicle-specs";
-import { isNewArrival } from "@/lib/inventory/new-arrival";
 import Link from "next/link";
 import Image from "next/image";
 import VehicleCardSave from "./VehicleCardSave";
@@ -17,8 +16,6 @@ interface VehicleCardProps {
   /** Hide odometer value in specs (still reserves a column with "—" when false skip). */
   hideOdometer?: boolean;
   className?: string;
-  /** SRP results only — homepage and carousels reuse the card without it. */
-  showNewArrivalBadge?: boolean;
 }
 
 export default function VehicleCard({
@@ -26,7 +23,6 @@ export default function VehicleCard({
   view = "grid",
   hideOdometer = false,
   className,
-  showNewArrivalBadge = false,
 }: VehicleCardProps) {
   const href = `/cars/${listing.slug}`;
   const imageAlt = vehicleCardHeadlineYearMakeModelTrim(listing);
@@ -69,19 +65,6 @@ export default function VehicleCard({
     <span className="inventory-card-used-badge">Used</span>
   ) : null;
 
-  const newArrivalBadge =
-    showNewArrivalBadge && isNewArrival(listing.last_updated) ? (
-      <span className="inventory-card-new-arrival-badge">New Arrival</span>
-    ) : null;
-
-  const badgeRow =
-    usedBadge || newArrivalBadge ? (
-      <div className="inventory-card-badge-row">
-        {usedBadge}
-        {newArrivalBadge}
-      </div>
-    ) : null;
-
   const imageWrap = (
     <div className="inventory-card-image-wrap">
       <Link href={href} className="inventory-card-media-link">
@@ -116,7 +99,7 @@ export default function VehicleCard({
         {imageWrap}
         <div className="inventory-card-list-main">
           <div className="inventory-card-title-block inventory-card-title-block--list">
-            {badgeRow}
+            {usedBadge}
             <Link
               href={href}
               className="inventory-card-headline-link inventory-card-headline-link--list"
@@ -199,7 +182,7 @@ export default function VehicleCard({
       <div className="inventory-card-body">
         <div className="inventory-card-main">
           <div className="inventory-card-title-block">
-            {badgeRow}
+            {usedBadge}
             <Link href={href} className="inventory-card-headline-link">
               <h3 className="inventory-card-headline">{headline}</h3>
             </Link>

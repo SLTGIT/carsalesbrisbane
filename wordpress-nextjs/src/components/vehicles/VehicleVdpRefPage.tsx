@@ -11,7 +11,6 @@ import {
   recoverPowertrain,
   simplifyTransmission,
 } from "@/lib/inventory/powertrain";
-import { isNewArrival } from "@/lib/inventory/new-arrival";
 import type { VehicleImage } from "@/types/vehicle";
 import type { VehicleEnquiryItemPayload } from "./VehicleEnquiryForm";
 import VehicleGallery from "./VehicleGallery";
@@ -179,8 +178,6 @@ export interface VehicleVdpRefPageProps {
   shareUrl: string;
   /** WordPress CMS overview (tag-substituted), shown above Key highlights. */
   cmsOverview?: string;
-  /** Feed last-updated timestamp — shows the "New Arrival" badge while recent. */
-  lastUpdated?: string | null;
 }
 
 export default function VehicleVdpRefPage({
@@ -203,10 +200,8 @@ export default function VehicleVdpRefPage({
   similarItems,
   shareUrl,
   cmsOverview = "",
-  lastUpdated = null,
 }: VehicleVdpRefPageProps) {
   const heroSubtitle = buildHeroSubtitle(snapshot, ai.heroBadge);
-  const showNewArrival = isNewArrival(lastUpdated);
   const quickSpecs = buildQuickSpecs(snapshot);
 
   const vdpAnalytics = {
@@ -267,11 +262,6 @@ export default function VehicleVdpRefPage({
                     {breadcrumbMake || "Vehicles"}
                   </Link>
                 </nav>
-                {showNewArrival ? (
-                  <p className="mb-2">
-                    <span className="vdp-ref-new-arrival">New Arrival</span>
-                  </p>
-                ) : null}
                 <h1 className="vdp-ref-page-title display-6 fw-bold cs-title-tight mb-2">
                   {headline}
                 </h1>
