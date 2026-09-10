@@ -69,6 +69,13 @@ export interface DealerVehicle {
   Rego?: string;
   RegistrationNumber?: string;
   RegistrationPlate?: string;
+
+  /**
+   * When the dealer last updated the stock record — drives the "New Arrival"
+   * badge and sort. `unknown` until the feed's type for it is verified; read
+   * it through `parseLastUpdatedMs`.
+   */
+  LastUpdated?: unknown;
 }
 
 export interface DealerInventoryFeed {
@@ -130,6 +137,8 @@ export interface VehicleListing {
   body_colour: string;
   /** Feed TrimColour — shown in card headline after trim when present. */
   trim_colour: string;
+  /** Feed last-updated timestamp as supplied, e.g. "2026-09-03T15:45:37". */
+  last_updated: string | null;
 }
 
 export interface FilterOptionCount {
@@ -174,6 +183,7 @@ export interface InventoryFilterState {
 }
 
 export type InventorySort =
+  | "new-arrival"
   | "best"
   | "price-asc"
   | "price-desc"
@@ -182,4 +192,4 @@ export type InventorySort =
   | "odometer-asc";
 
 /** Default SRP sort; omitted from listing URLs when unchanged. */
-export const DEFAULT_INVENTORY_SORT: InventorySort = "year-desc";
+export const DEFAULT_INVENTORY_SORT: InventorySort = "new-arrival";

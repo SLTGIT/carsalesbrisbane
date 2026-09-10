@@ -131,6 +131,8 @@ export function dealerVehicleToListing(v: DealerVehicle): VehicleListing {
     year: v.ManufactureYear,
     body_colour: v.BodyColour?.trim() || "",
     trim_colour: v.TrimColour?.trim() || "",
+    last_updated:
+      v.LastUpdated == null ? null : String(v.LastUpdated).trim() || null,
   };
 }
 

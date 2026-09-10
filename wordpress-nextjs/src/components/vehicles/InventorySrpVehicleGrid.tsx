@@ -19,5 +19,5 @@ export default function InventorySrpVehicleGrid({
 
   const view = mounted ? resultsView : "list";
 
-  return <VehicleGrid listings={listings} view={view} />;
+  return <VehicleGrid listings={listings} view={view} showNewArrivalBadge />;
 }
