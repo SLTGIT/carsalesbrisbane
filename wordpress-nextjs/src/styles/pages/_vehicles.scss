@@ -603,6 +603,13 @@ $vehicles-primary-dark: color.adjust($color-primary, $lightness: -10%);
 
     &.is-list {
         grid-template-columns: 1fr;
+        /*
+         * The list card's layout depends on how wide the CARD is, not the
+         * window — the filter sidebar leaves it under 900px on a 1500px screen.
+         * Cards below query this, so they break at their own width.
+         */
+        container-type: inline-size;
+        container-name: srp-list;
     }
 }
 
@@ -661,10 +668,22 @@ $vehicles-primary-dark: color.adjust($color-primary, $lightness: -10%);
     }
 
     &.is-list {
+        /*
+         * The photo column is exactly a 4:3 crop of the card's own height, so
+         * the feed's 1280x960 photos fill it with nothing cropped and nothing
+         * left over. Both dimensions derive from one number — change the height
+         * and the column follows, so the two can never drift apart.
+         */
+        --cs-list-card-height: 290px;
+
         display: grid;
-        grid-template-columns: minmax(220px, 30%) minmax(0, 1fr) minmax(200px, 280px);
+        grid-template-columns:
+            calc(var(--cs-list-card-height) * 4 / 3)
+            minmax(0, 1fr)
+            minmax(200px, 280px);
         gap: 0;
         align-items: stretch;
+        height: var(--cs-list-card-height);
 
         .inventory-card-image-wrap {
             aspect-ratio: unset;
@@ -672,9 +691,43 @@ $vehicles-primary-dark: color.adjust($color-primary, $lightness: -10%);
             height: 100%;
             align-self: stretch;
 
-            @media (min-width: 901px) {
+            @container srp-list (min-width: 1000px) {
                 border-right: 1px solid #e5e7eb;
             }
+        }
+
+        /* The panel already matches the photo's ratio, so the inherited `cover`
+           crops nothing. It stays `cover` rather than `contain` so an odd-sized
+           photo fills the panel instead of leaving bars down the side. */
+
+        /* Everything in the middle column now has to sit inside one photo
+           height, so the list card runs tighter than the grid card. */
+        .inventory-card-title-block--list {
+            margin-bottom: 0.5rem;
+        }
+
+        .inventory-card-spec-grid {
+            gap: 0.4rem 0.9rem;
+            margin-bottom: 0.45rem;
+        }
+
+        .inventory-card-tags {
+            margin-top: 0.45rem;
+        }
+
+        /* The icon's default line box, not the text, was setting the row
+           height — five rows of that slack is the difference between the tag
+           row fitting inside the card and being clipped off the bottom. */
+        .inventory-card-spec-row__icon {
+            line-height: 1;
+        }
+
+        .inventory-card-badge-row {
+            margin-bottom: 0.35rem;
+        }
+
+        .inventory-card-subtitle--list {
+            margin-top: 0.15rem;
         }
 
         .inventory-card-media-link {
@@ -682,8 +735,35 @@ $vehicles-primary-dark: color.adjust($color-primary, $lightness: -10%);
             min-height: 200px;
         }
 
-        @media (max-width: 900px) {
+        /*
+         * Below this the three columns stop fitting: a 387px photo and a 280px
+         * price rail leave the middle too narrow to hold a title on one line.
+         * The aside wraps onto its own row, so the card can no longer be one
+         * photo tall — height goes back to the content and the photo keeps its
+         * ratio on its own.
+         */
+        @container srp-list (max-width: 999px) {
             grid-template-columns: minmax(200px, 36%) minmax(0, 1fr);
+            height: auto;
+
+            .inventory-card-image-wrap {
+                aspect-ratio: 4 / 3;
+                /* Width must stay definite so the ratio can only derive the
+                   height. Left auto, the 200px floor below fights the ratio
+                   and the browser sizes the width from it instead of the
+                   track — the photo then spills over the text beside it. */
+                width: 100%;
+                height: auto;
+                min-height: 0;
+                align-self: start;
+            }
+
+            /* The fixed-height layout stretched the link to fill the panel;
+               here the panel is only as tall as the photo. */
+            .inventory-card-media-link {
+                height: 100%;
+                min-height: 0;
+            }
 
             .inventory-card-list-aside {
                 grid-column: 1 / -1;
@@ -724,7 +804,10 @@ $vehicles-primary-dark: color.adjust($color-primary, $lightness: -10%);
             }
         }
 
-        @media (max-width: 600px) {
+        /* Narrower still: the photo stops sharing a row with the text. */
+        /* Below this the photo stops sharing a row with the text at all: the
+           card stacks like the grid card — photo, then details, then price. */
+        @container srp-list (max-width: 759px) {
             grid-template-columns: 1fr;
 
             .inventory-card-list-aside {
@@ -751,24 +834,83 @@ $vehicles-primary-dark: color.adjust($color-primary, $lightness: -10%);
                 }
             }
         }
+
+        /*
+         * Safety net for browsers that ignore @container (pre-2023 Safari).
+         * It must stay scoped to those browsers: unscoped it also matched
+         * modern ones, where — being the last rule — it overrode the 759px
+         * container query above and held a phone-width card in two columns,
+         * crushing the text into a strip beside the photo.
+         */
+        @supports not (container-type: inline-size) {
+            @media (max-width: 900px) {
+                grid-template-columns: minmax(200px, 36%) minmax(0, 1fr);
+                height: auto;
+
+                .inventory-card-image-wrap {
+                    aspect-ratio: 4 / 3;
+                    /* Width must stay definite so the ratio can only derive
+                       the height. Left auto, the 200px floor below fights the
+                       ratio and the browser sizes the width from it instead of
+                       the track — the photo then spills over the text. */
+                    width: 100%;
+                    height: auto;
+                    min-height: 0;
+                    align-self: start;
+                }
+
+                /* The fixed-height layout stretched the link to fill the
+                   panel; here the panel is only as tall as the photo. */
+                .inventory-card-media-link {
+                    height: 100%;
+                    min-height: 0;
+                }
+
+                .inventory-card-list-aside {
+                    grid-column: 1 / -1;
+                    border-left: none;
+                    border-top: 1px solid #e5e7eb;
+                }
+
+                .inventory-card-list-main {
+                    border-right: none;
+                }
+            }
+
+            /* Mirrors the 759px container query: the photo stops sharing a
+               row with the text and the card stacks. */
+            @media (max-width: 759px) {
+                grid-template-columns: 1fr;
+
+                .inventory-card-list-aside {
+                    grid-column: auto;
+                }
+            }
+        }
     }
 }
 
 /* ——— Search list view (three-column row) ——— */
 .inventory-card-list-main {
-    padding: 1.15rem 1.25rem 1.2rem;
+    padding: 1rem 1.25rem;
     min-width: 0;
     border-right: 1px solid #e5e7eb;
     display: flex;
     flex-direction: column;
-    justify-content: space-around;
+    /* The card's height is fixed to the photo, so pack from the top and clip
+       rather than distribute — an overlong spec list must never push the title
+       out of the card. */
+    justify-content: flex-start;
+    overflow: hidden;
     gap: 0;
 
-    @media (max-width: 900px) {
+    /* Matches the card's own breakpoints: once the price rail wraps below, the
+       divider it used to separate from is no longer beside it. */
+    @container srp-list (max-width: 999px) {
         border-right: none;
     }
 
-    @media (max-width: 600px) {
+    @container srp-list (max-width: 759px) {
         padding-top: 1rem;
     }
 }
@@ -784,11 +926,6 @@ $vehicles-primary-dark: color.adjust($color-primary, $lightness: -10%);
     &:focus-visible .inventory-card-headline--list {
         color: var(--cs-primary, #{$cs-primary});
     }
-
-    &:hover .inventory-card-subtitle--list,
-    &:focus-visible .inventory-card-subtitle--list {
-        color: #4b5563;
-    }
 }
 
 .inventory-card-headline--list {
@@ -800,8 +937,8 @@ $vehicles-primary-dark: color.adjust($color-primary, $lightness: -10%);
 }
 
 .inventory-card-subtitle--list {
-    margin: 0.45rem 0 0;
-    font-size: 0.875rem;
+    margin: 0.15rem 0 0;
+    font-size: 0.95rem !important;
     line-height: 1.45;
     color: #6b7280;
     font-weight: 400;
@@ -1010,6 +1147,16 @@ $vehicles-primary-dark: color.adjust($color-primary, $lightness: -10%);
     margin-bottom: 0.05rem;
 }
 
+/* Price qualifier under the advertised price. Deliberately quiet — it
+   explains the number above it, it is not a second number. */
+.inventory-card-price-egc-note {
+    font-size: 0.65rem;
+    font-weight: 500;
+    color: #64748b;
+    line-height: 1.3;
+    letter-spacing: 0.01em;
+}
+
 .inventory-card-driveaway-note--aside {
     font-size: 0.7rem;
     font-weight: 600;
@@ -1162,10 +1309,53 @@ $vehicles-primary-dark: color.adjust($color-primary, $lightness: -10%);
 
 .inventory-card-title-block {
     margin-bottom: 0.65rem;
-
     .inventory-card-used-badge {
         display: inline-block;
         margin-bottom: 0.5rem;
+    }
+}
+
+// Badges above the title: Used on the left, New Arrival pinned to the right
+// end of the same row (it still sits right-aligned when there is no Used badge).
+.inventory-card-badge-row {
+    display: flex;
+    align-items: center;
+    /* Wraps because the row is as narrow as the card: unwrapped, the
+       right-pinned New Arrival badge was pushed off the edge and clipped on a
+       phone. Once wrapped it drops to its own line instead. */
+    flex-wrap: wrap;
+    gap: 0.4rem;
+    margin-bottom: 0.5rem;
+
+    .inventory-card-used-badge {
+        margin-bottom: 0;
+    }
+
+    .inventory-card-new-arrival-badge {
+        margin-left: auto;
+    }
+}
+
+// Same box as the Used badge; orange to match the VDP "New Arrival" badge.
+.inventory-card-new-arrival-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.3rem;
+    font-size: 0.65rem;
+    font-weight: 700;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    padding: 0.32rem 0.6rem;
+    border-radius: 6px;
+    line-height: 1.2;
+    color: #fff;
+    background: #ea580c;
+    border: 1px solid #ea580c;
+
+    // Kept within the text line box so the badge stays the Used badge's height.
+    .bi {
+        font-size: 0.75rem;
+        line-height: 1;
     }
 }
 
@@ -1189,17 +1379,27 @@ $vehicles-primary-dark: color.adjust($color-primary, $lightness: -10%);
     border-radius: 4px;
     transition: color 0.18s ease;
 
-    .inventory-card-headline {
+    .inventory-card-headline,
+    .inventory-card-subtitle {
         transition: color 0.18s ease, text-decoration-color 0.18s ease;
     }
 
+    /* Title and trim are one link, so they light up together — the trim
+       staying grey read as if only half the name was clickable. */
     &:hover .inventory-card-headline,
-    &:focus-visible .inventory-card-headline {
+    &:focus-visible .inventory-card-headline,
+    &:hover .inventory-card-subtitle,
+    &:focus-visible .inventory-card-subtitle {
         color: var(--cs-primary, #{$cs-primary});
         text-decoration: underline;
         text-decoration-thickness: 2px;
         text-underline-offset: 0.2em;
         text-decoration-color: rgba($cs-primary, 0.45);
+    }
+
+    &:hover .inventory-card-subtitle,
+    &:focus-visible .inventory-card-subtitle {
+        text-decoration-thickness: 1px;
     }
 
     &:focus-visible {
@@ -1218,8 +1418,8 @@ $vehicles-primary-dark: color.adjust($color-primary, $lightness: -10%);
 }
 
 .inventory-card-subtitle {
-    margin: 0.35rem 0 0;
-    font-size: 0.8125rem;
+    margin: 0.15rem 0 0;
+    font-size: 0.95rem !important;
     line-height: 1.4;
     color: #6b7280;
     display: -webkit-box;
@@ -1269,8 +1469,7 @@ $vehicles-primary-dark: color.adjust($color-primary, $lightness: -10%);
 }
 
 .inventory-card-spec-row__value {
-    font-size: 0.82rem;
-    font-weight: 600;
+    font-size: 0.85rem;
     color: #111827;
     line-height: 1.3;
     /* Values are single words or short phrases; ellipsis beats a wrapped row
@@ -1281,6 +1480,15 @@ $vehicles-primary-dark: color.adjust($color-primary, $lightness: -10%);
 }
 
 @media (max-width: 380px) {
+    .inventory-card-spec-grid {
+        grid-template-columns: 1fr;
+    }
+}
+
+/* Same collapse driven by the card's own width: a list card beside the filter
+   sidebar can be phone-narrow on a wide screen, where the viewport query above
+   never fires and two columns of specs turn into two columns of ellipses. */
+@container srp-list (max-width: 320px) {
     .inventory-card-spec-grid {
         grid-template-columns: 1fr;
     }

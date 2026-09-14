@@ -25,6 +25,10 @@ const nextConfig: NextConfig = {
     ];
   },
   images: {
+    // Some local networks (DNS64/NAT64) resolve the feed's image CDN to
+    // 64:ff9b:: addresses, which Next treats as private and rejects. Allow it
+    // in dev only; production keeps the SSRF guard.
+    dangerouslyAllowLocalIP: process.env.NODE_ENV === "development",
     remotePatterns: [
       {
         protocol: 'https',

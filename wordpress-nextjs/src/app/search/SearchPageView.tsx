@@ -126,7 +126,8 @@ export default async function SearchPageView({
     effectiveFilters.page * PER_PAGE,
   );
   const listings = pageSlice.map(dealerVehicleToListing);
-
+  console.log(listings);
+  
   if (pageSlice.length > 0) {
     after(() => {
       void warmVehicleVdpCachesForVehicles(pageSlice, {
@@ -166,48 +167,48 @@ export default async function SearchPageView({
   const itemListElement =
     pageSlice.length > 0
       ? pageSlice.map((vehicle, index) => ({
-          "@type": "ListItem",
-          position: (effectiveFilters.page - 1) * PER_PAGE + index + 1,
-          item: vehicleJsonLdFromInventory(
-            origin,
-            vehicle,
-            listings[index],
-          ),
-        }))
+        "@type": "ListItem",
+        position: (effectiveFilters.page - 1) * PER_PAGE + index + 1,
+        item: vehicleJsonLdFromInventory(
+          origin,
+          vehicle,
+          listings[index],
+        ),
+      }))
       : [];
 
   const breadcrumbItems = pathBreadcrumb
     ? [
+      { name: "Home", item: `${origin}/` },
+      { name: "Search", item: `${origin}/search` },
+      {
+        name: pathBreadcrumb.parent.name,
+        item: `${origin}${pathBreadcrumb.parent.href}`,
+      },
+      { name: pathBreadcrumb.current, item: currentUrlHttps },
+    ]
+    : breadcrumbCurrentCustom
+      ? [
         { name: "Home", item: `${origin}/` },
         { name: "Search", item: `${origin}/search` },
         {
-          name: pathBreadcrumb.parent.name,
-          item: `${origin}${pathBreadcrumb.parent.href}`,
+          name:
+            breadcrumbCurrentCustom.length > 90
+              ? `${breadcrumbCurrentCustom.slice(0, 87)}…`
+              : breadcrumbCurrentCustom,
+          item: currentUrlHttps,
         },
-        { name: pathBreadcrumb.current, item: currentUrlHttps },
       ]
-    : breadcrumbCurrentCustom
-      ? [
-          { name: "Home", item: `${origin}/` },
-          { name: "Search", item: `${origin}/search` },
-          {
-            name:
-              breadcrumbCurrentCustom.length > 90
-                ? `${breadcrumbCurrentCustom.slice(0, 87)}…`
-                : breadcrumbCurrentCustom,
-            item: currentUrlHttps,
-          },
-        ]
       : hero
         ? [
-            { name: "Home", item: `${origin}/` },
-            { name: "Search", item: `${origin}/search` },
-            { name: hero, item: currentUrlHttps },
-          ]
+          { name: "Home", item: `${origin}/` },
+          { name: "Search", item: `${origin}/search` },
+          { name: hero, item: currentUrlHttps },
+        ]
         : [
-            { name: "Home", item: `${origin}/` },
-            { name: "Search", item: currentUrlHttps },
-          ];
+          { name: "Home", item: `${origin}/` },
+          { name: "Search", item: currentUrlHttps },
+        ];
 
   const jsonLd = jsonLdGraph(
     organizationJsonLd(origin),
@@ -228,12 +229,12 @@ export default async function SearchPageView({
       publisher: { "@id": `${origin}/#organization` },
       ...(itemListElement.length > 0
         ? {
-            mainEntity: {
-              "@type": "ItemList",
-              numberOfItems: sorted.length,
-              itemListElement,
-            },
-          }
+          mainEntity: {
+            "@type": "ItemList",
+            numberOfItems: sorted.length,
+            itemListElement,
+          },
+        }
         : {}),
     },
     breadcrumbJsonLd(currentUrlHttps, breadcrumbItems),
@@ -257,21 +258,21 @@ export default async function SearchPageView({
       {showWpHero ? (
         <WpRenderedHtml html={wpHero} />
       ) : (
-      <section className="cs-page-hero search-page-hero py-3 py-md-2">
-        <div className="container py-lg-2">
-          <div className="row g-3 g-lg-4 align-items-center">
-            <div className="col-lg-10 py-5">
-              <h1 className="search-page-hero-title fw-bold mb-2 cs-title-tight">
-                {heroTitle}
-              </h1>
-              <p className="search-page-hero-lead mb-0">
-                {heroDescription}
-              </p>
+        <section className="cs-page-hero search-page-hero py-3 py-md-2">
+          <div className="container py-lg-2">
+            <div className="row g-3 g-lg-4 align-items-center">
+              <div className="col-lg-10 py-5">
+                <h1 className="search-page-hero-title fw-bold mb-2 cs-title-tight">
+                  {heroTitle}
+                </h1>
+                <p className="search-page-hero-lead mb-0">
+                  {heroDescription}
+                </p>
+              </div>
+              {/* <div className="col-lg-5" /> */}
             </div>
-            {/* <div className="col-lg-5" /> */}
           </div>
-        </div>
-      </section>
+        </section>
       )}
       <div className="vehicles-page inventory-srp">
         <div className="vehicles-container inventory-srp-inner">

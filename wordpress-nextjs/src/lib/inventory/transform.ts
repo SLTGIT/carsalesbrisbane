@@ -1,5 +1,6 @@
 import type { DealerVehicle, VehicleListing } from "@/types/inventory";
 import { buildVehicleSlug } from "./slug";
+import { isNewArrival } from "./new-arrival";
 import {
   vehicleDisplayFuelType,
   vehicleDisplayTransmission,
@@ -109,7 +110,11 @@ export function dealerVehicleToListing(v: DealerVehicle): VehicleListing {
     make,
     model,
     featured_image: photo,
-    condition: v.Condition || "Used",
+    // Trimmed before the fallback: the feed sends a whitespace-only Condition
+    // for some stock, and `||` keeps " " as a value. condition then stayed
+    // " ", which never equals "used", so the Used badge silently vanished
+    // from cards whose slug still read "used".
+    condition: v.Condition?.trim() || "Used",
     body_type: v.BodyType?.trim() || "",
     transmission: vehicleDisplayTransmission(v),
     transmission_raw: v.TransmissionType?.trim() || "",
@@ -131,6 +136,10 @@ export function dealerVehicleToListing(v: DealerVehicle): VehicleListing {
     year: v.ManufactureYear,
     body_colour: v.BodyColour?.trim() || "",
     trim_colour: v.TrimColour?.trim() || "",
+    last_updated:
+      v.LastUpdated == null ? null : String(v.LastUpdated).trim() || null,
+    // Resolved here, on the server, so every renderer of this listing agrees.
+    is_new_arrival: isNewArrival(v.LastUpdated),
   };
 }
 

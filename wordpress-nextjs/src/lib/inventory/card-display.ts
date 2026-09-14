@@ -107,6 +107,8 @@ export function vehicleCardTrimFromTitle(listing: VehicleListing): string {
 export function vehicleCardHeadlineYearMakeModelTrim(
   listing: VehicleListing,
 ): string {
+  console.log(listing);
+  
   const headline = listing.headline?.trim();
   if (headline) return headline;
 
@@ -120,42 +122,45 @@ export function vehicleCardHeadlineYearMakeModelTrim(
 }
 
 /**
- * List row primary title — the same full headline as the grid card, so a buyer
- * can tell two variants apart in either view.
+ * Card title line — "YEAR Make Model", e.g. "2020 Mazda CX-8".
+ *
+ * The badge and series move to {@link vehicleCardTrimLine}, so the two lines
+ * read as a car and then its variant instead of one long run of words. Falls
+ * back to the full headline when year, make and model are all missing.
  */
-export function vehicleCardListPrimaryHeadline(listing: VehicleListing): string {
+export function vehicleCardPrimaryLine(listing: VehicleListing): string {
+  const year =
+    listing.year != null && listing.year > 0 ? String(listing.year) : "";
+  const parts = [year, listing.make?.trim(), listing.model?.trim()].filter(
+    Boolean,
+  );
+  if (parts.length) return parts.join(" ");
   return vehicleCardHeadlineYearMakeModelTrim(listing);
 }
 
-/** List row subtitle: year + variant / trim line (screenshot-style). */
-export function vehicleCardListSubtitleLine(listing: VehicleListing): string {
-  const year =
-    listing.year != null && listing.year > 0 ? String(listing.year) : "";
-  const trim = vehicleCardTrimFromTitle(listing);
-  const tc = listing.trim_colour?.trim() || "";
-  const tail: string[] = [];
-  if (trim) tail.push(trim);
-  if (tc && !trim.toLowerCase().includes(tc.toLowerCase())) {
-    tail.push(tc);
-  }
-  if (year && tail.length) {
-    return `${year} ${tail.join(" ")}`.trim();
-  }
-  if (year && !tail.length) {
-    const bt = listing.body_type?.trim();
-    return bt ? `${year} ${bt}` : year;
-  }
-  if (tail.length) return tail.join(" ");
-  const t = listing.title?.trim();
-  return t || "";
+/**
+ * Card second line: the variant — badge then series, e.g. "Sport KG2WLA".
+ *
+ * Both come pre-separated from the name parser. A record the parser could not
+ * split falls back to the trim recovered from the raw title, and a vehicle with
+ * neither returns "" so the card renders no second line rather than a blank one.
+ */
+export function vehicleCardTrimLine(listing: VehicleListing): string {
+  const parts = [listing.badge?.trim(), listing.series?.trim()].filter(Boolean);
+  if (parts.length) return parts.join(" ");
+  return vehicleCardTrimFromTitle(listing);
 }
 
-/** Short feature pills for list cards (feed has no equipment list). */
+/**
+ * Short feature pills for list cards (feed has no equipment list).
+ *
+ * These values also exist as spec rows, so the list card drops the matching
+ * rows rather than printing body type and drive type twice per card.
+ */
 export function vehicleCardFeatureTags(
   listing: VehicleListing,
-  max = 3,
+  max = 2,
 ): string[] {
-
   const candidates = [
     listing.body_type?.trim(),
     listing.drive_type?.trim(),
