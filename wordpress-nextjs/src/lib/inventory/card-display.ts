@@ -107,8 +107,6 @@ export function vehicleCardTrimFromTitle(listing: VehicleListing): string {
 export function vehicleCardHeadlineYearMakeModelTrim(
   listing: VehicleListing,
 ): string {
-  console.log(listing);
-  
   const headline = listing.headline?.trim();
   if (headline) return headline;
 

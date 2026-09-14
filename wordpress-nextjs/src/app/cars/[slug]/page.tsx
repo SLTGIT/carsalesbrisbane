@@ -7,6 +7,10 @@ import {
 } from "@/lib/openai/loadVehicleVdpBySlug";
 import { formatVehicleVdpBrowserTitle } from "@/lib/wordpress/vdp-meta";
 import { dealerVehicleToListing } from "@/lib/inventory/transform";
+import {
+  vehicleCardPrimaryLine,
+  vehicleCardTrimLine,
+} from "@/lib/inventory/card-display";
 import { buildVehicleSlug } from "@/lib/inventory/slug";
 import {
   inventoryListingHref,
@@ -151,6 +155,12 @@ export default async function VehicleDetailPage({
   // buyer arriving from the grid sees the variant they clicked.
   const headline = listing.headline || listing.title;
 
+  // The h1 shows that same name over two lines, exactly as the card does.
+  // Reusing the card's helpers keeps the split in one place, so a change to how
+  // a variant is worded cannot land on the grid and miss the detail page.
+  const titlePrimary = vehicleCardPrimaryLine(listing);
+  const titleVariant = vehicleCardTrimLine(listing);
+
   const dealerPhone = process.env.NEXT_PUBLIC_DEALER_PHONE || "0418 908 870";
   const telHref = `tel:${dealerPhone.replace(/\s/g, "")}`;
   const priceMain =
@@ -213,6 +223,8 @@ export default async function VehicleDetailPage({
         snapshot={snapshot}
         ai={ai}
         headline={headline}
+        titlePrimary={titlePrimary}
+        titleVariant={titleVariant}
         featuredImage={featured}
         galleryImages={galleryImages}
         listingTitle={listing.title}

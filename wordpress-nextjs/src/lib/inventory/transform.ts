@@ -110,11 +110,7 @@ export function dealerVehicleToListing(v: DealerVehicle): VehicleListing {
     make,
     model,
     featured_image: photo,
-    // Trimmed before the fallback: the feed sends a whitespace-only Condition
-    // for some stock, and `||` keeps " " as a value. condition then stayed
-    // " ", which never equals "used", so the Used badge silently vanished
-    // from cards whose slug still read "used".
-    condition: v.Condition?.trim() || "Used",
+    condition: v.Condition || "Used",
     body_type: v.BodyType?.trim() || "",
     transmission: vehicleDisplayTransmission(v),
     transmission_raw: v.TransmissionType?.trim() || "",

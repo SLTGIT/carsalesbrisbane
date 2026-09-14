@@ -451,11 +451,6 @@
     }
   }
 
-  .vdp-ref-hero-subtitle {
-    color: var(--cs-muted);
-    font-size: 1rem;
-  }
-
   .vdp-ref-quick-spec {
     display: flex;
     gap: 0.75rem;
@@ -774,6 +769,16 @@
     line-height: 1.15;
   }
 
+  /* Second title line — the variant. Quieter and lighter than the h1 so the
+     two read as one name over two lines rather than two competing headings,
+     the same relationship the card's subtitle has to its headline. */
+  .vdp-ref-page-variant {
+    font-size: clamp(1rem, 2.6vw, 1.35rem);
+    font-weight: 500;
+    line-height: 1.3;
+    color: var(--cs-muted);
+  }
+
   .vdp-ref-mobile-price {
     .cs-price {
       font-size: clamp(1.65rem, 6vw, 2.25rem);
@@ -792,10 +797,6 @@
     .vdp-ref-breadcrumb {
       font-size: 0.8125rem;
       line-height: 1.4;
-    }
-
-    .vdp-ref-hero-subtitle {
-      font-size: 0.9rem;
     }
 
     .vdp-ref-gallery-wrap {

@@ -79,18 +79,16 @@ function formatDealerAddress(): string {
   return `${a.streetAddress}, ${a.addressLocality}, ${a.addressRegion} ${a.postalCode}`;
 }
 
-function buildHeroSubtitle(
-  snapshot: VehicleVdpSnapshot,
-  heroBadge: string,
-): string {
-  const badge = heroBadge.trim();
-  if (badge) return badge;
-  const parts = [
-    snapshot.locationShort || "Brisbane",
-    `Dealer ${(snapshot.condition || "used").toLowerCase()}`,
-  ].filter(Boolean);
-  return parts.join(" · ");
-}
+/*
+ * There is deliberately no hero subtitle line.
+ *
+ * `ai.heroBadge` is generated to a fixed shape — "year · condition · body ·
+ * fuel" — and every one of those four already appears on this page: the year
+ * in the h1, the condition in the breadcrumb and the URL, and body type and
+ * fuel as their own Quick-spec tiles directly below. So the line could only
+ * ever restate what the reader had just read. The badge is still generated and
+ * cached; it simply is not printed here.
+ */
 
 function buildQuickSpecs(snapshot: VehicleVdpSnapshot): VdpQuickSpecItem[] {
   const odo =
@@ -161,6 +159,14 @@ export interface VehicleVdpRefPageProps {
   snapshot: VehicleVdpSnapshot;
   ai: VehicleVdpAiContent;
   headline: string;
+  /**
+   * Page title split the way the vehicle card splits it: "2020 Mazda CX-8" on
+   * the first line, "Sport KG2WLA" on the second. Both come from the card's own
+   * helpers so the two pages cannot word the same car differently. Optional —
+   * without them the h1 falls back to the single-line {@link headline}.
+   */
+  titlePrimary?: string;
+  titleVariant?: string;
   featuredImage: string;
   galleryImages: VehicleImage[];
   listingTitle: string;
@@ -187,6 +193,8 @@ export default function VehicleVdpRefPage({
   snapshot,
   ai,
   headline,
+  titlePrimary = "",
+  titleVariant = "",
   featuredImage,
   galleryImages,
   listingTitle,
@@ -205,7 +213,6 @@ export default function VehicleVdpRefPage({
   cmsOverview = "",
   lastUpdated = null,
 }: VehicleVdpRefPageProps) {
-  const heroSubtitle = buildHeroSubtitle(snapshot, ai.heroBadge);
   const showNewArrival = isNewArrival(lastUpdated);
   const quickSpecs = buildQuickSpecs(snapshot);
 
@@ -275,10 +282,17 @@ export default function VehicleVdpRefPage({
                     </span>
                   </p>
                 ) : null}
-                <h1 className="vdp-ref-page-title display-6 fw-bold cs-title-tight mb-2">
-                  {headline}
+                {/* Split like the vehicle card: the car on one line, its
+                    variant on the next, so a long badge and series no longer
+                    run into the model name. `headline` keeps the whole name on
+                    one line wherever a break would mean nothing — the sticky
+                    bar, share titles and image alt text. */}
+                <h1 className="vdp-ref-page-title display-6 fw-bold cs-title-tight mb-1">
+                  {titlePrimary || headline}
                 </h1>
-                <p className="vdp-ref-hero-subtitle mb-0">{heroSubtitle}</p>
+                {titleVariant ? (
+                  <p className="vdp-ref-page-variant mb-2">{titleVariant}</p>
+                ) : null}
                 {ai.heroLead.trim() ? (
                   <p className="cs-muted mt-2 mb-0 small">{ai.heroLead}</p>
                 ) : null}
