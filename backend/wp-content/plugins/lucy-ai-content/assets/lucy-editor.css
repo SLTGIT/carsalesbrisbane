@@ -1,4 +1,27 @@
-/* Lucy in the post editor: the sidebar panel and the Write with Lucy popup. */
+/* Lucy in the post editor: the toolbar button, the sidebar panel and the Write with Lucy popup. */
+
+/* The button Lucy adds to the editor's top toolbar, before Save / Publish. */
+.lucy-header-slot { display: flex; align-items: center; margin-right: 8px; }
+.lucy-header-btn.components-button {
+	height: 32px;
+	padding: 0 12px;
+	gap: 6px;
+	border-radius: 4px;
+	background: #5a4bb5;
+	color: #fff;
+	font-weight: 600;
+	white-space: nowrap;
+}
+.lucy-header-btn.components-button:hover:not(:disabled),
+.lucy-header-btn.components-button:focus:not(:disabled) { background: #4a3da0; color: #fff; }
+.lucy-header-btn.components-button:focus:not(:disabled) { box-shadow: 0 0 0 2px #fff, 0 0 0 4px #5a4bb5; outline: none; }
+.lucy-header-btn.components-button svg { fill: currentColor; }
+/* On narrow screens the toolbar is tight, so only the sparkle is shown. */
+@media (max-width: 960px) {
+	.lucy-header-btn .lucy-header-btn-label { display: none; }
+	.lucy-header-btn.components-button { padding: 0 8px; }
+}
+
 .lucy-ed-sidebar .components-button.is-primary { width: 100%; justify-content: center; }
 .lucy-ed-muted { color: #6b6b76; font-size: 12.5px; margin: 0 0 10px; }
 .lucy-ed-label { font-size: 11px; letter-spacing: .06em; text-transform: uppercase; color: #6b6b76; margin: 0 0 6px; }

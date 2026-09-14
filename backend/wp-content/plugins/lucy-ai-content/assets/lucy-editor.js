@@ -168,13 +168,74 @@
 	}
 
 	/* ------------------------------------------------------------------
-	 * The button: in the Lucy sidebar panel and in the document panel
+	 * The button in the editor's top toolbar, next to Publish.
+	 *
+	 * WordPress has no official slot for a button there, so Lucy puts its own
+	 * <div> at the start of the header's settings area and renders into it.
+	 * WordPress rebuilds that header whenever you switch to fullscreen, change
+	 * the device preview or open another sidebar, which throws Lucy's element
+	 * away – so the slot is checked twice a second and put back if it is gone.
+	 * ------------------------------------------------------------------ */
+
+	/** Where the toolbar buttons live. The first selector is WordPress 6.6+. */
+	var HEADER_HOSTS = [ '.editor-header__settings', '.edit-post-header__settings' ];
+
+	/** Templates, patterns and navigation menus are not articles, so they get no button. */
+	function isContentPost() {
+		var e = editor();
+		var type = ( e && e.getCurrentPostType ) ? e.getCurrentPostType() : '';
+		return !! type && [ 'wp_template', 'wp_template_part', 'wp_block', 'wp_navigation' ].indexOf( type ) < 0;
+	}
+
+	/** Keeps Lucy's own element alive inside the toolbar and returns it. */
+	function useHeaderSlot() {
+		var s = useState( null );
+		var slot = s[ 0 ], setSlot = s[ 1 ];
+		wp.element.useEffect( function () {
+			var node = null;
+			var ensure = function () {
+				if ( node && document.body.contains( node ) ) { return; }
+				if ( ! isContentPost() ) { return; }
+				var host = null;
+				for ( var i = 0; i < HEADER_HOSTS.length && ! host; i++ ) {
+					host = document.querySelector( HEADER_HOSTS[ i ] );
+				}
+				if ( ! host ) { return; }
+				node = document.createElement( 'div' );
+				node.className = 'lucy-header-slot';
+				host.insertBefore( node, host.firstChild );
+				setSlot( node );
+			};
+			ensure();
+			var timer = window.setInterval( ensure, 500 );
+			return function () {
+				window.clearInterval( timer );
+				if ( node && node.parentNode ) { node.parentNode.removeChild( node ); }
+			};
+		}, [] );
+		return slot;
+	}
+
+	function LucyHeaderButton( props ) {
+		var slot = useHeaderSlot();
+		if ( ! slot ) { return null; }
+		return wp.element.createPortal(
+			el( C.Button, {
+				className: 'lucy-header-btn',
+				onClick: props.onClick,
+				'aria-label': 'Write with Lucy'
+			}, icon, el( 'span', { className: 'lucy-header-btn-label' }, 'Write with Lucy' ) ),
+			slot
+		);
+	}
+
+	/* ------------------------------------------------------------------
+	 * The Lucy panel in the document sidebar
 	 * ------------------------------------------------------------------ */
 	function LucyPanel() {
 		var o = useState( false ); var open = o[ 0 ], setOpen = o[ 1 ];
 		var i = useState( { busy: false, error: '' } ); var img = i[ 0 ], setImg = i[ 1 ];
 		var t = useState( CFG.defaultTemplate || '' ); var tpl = t[ 0 ], setTpl = t[ 1 ];
-		if ( ! PanelSlot ) { return null; }
 		var templates = ( CFG.imageTemplates || [] ).map( function ( x ) { return { label: x.name, value: x.id }; } );
 
 		function makeImage() {
@@ -195,7 +256,8 @@
 		}
 
 		return el( wp.element.Fragment, null,
-			el( PanelSlot, { name: 'lucy-write', title: 'Lucy', icon: icon, className: 'lucy-ed-sidebar' },
+			el( LucyHeaderButton, { onClick: function () { setOpen( true ); } } ),
+			PanelSlot ? el( PanelSlot, { name: 'lucy-write', title: 'Lucy', icon: icon, className: 'lucy-ed-sidebar' },
 				el( 'p', { className: 'lucy-ed-muted' }, CFG.active
 					? 'Lucy writes the whole article from your Growth profile' + ( CFG.business ? ' for ' + CFG.business : '' ) + '.'
 					: ( CFG.notActiveMessage || 'Lucy is not set up yet.' ) ),
@@ -207,15 +269,15 @@
 						img.busy ? 'Making the picture…' : 'Create featured image' ),
 					img.error ? el( C.Notice, { status: 'error', isDismissible: false }, img.error ) : null
 				) : el( 'p', { className: 'lucy-ed-muted' }, el( 'a', { href: CFG.imagesUrl, target: '_blank', rel: 'noopener' }, 'Set up an image template →' ) )
-			),
+			) : null,
 			open ? el( WriteModal, { onClose: function () { setOpen( false ); } } ) : null
 		);
 	}
 
-	if ( wp.plugins && PanelSlot ) {
+	if ( wp.plugins ) {
 		wp.plugins.registerPlugin( 'lucy-write-panel', { render: LucyPanel, icon: icon } );
 	}
 
 	// Exposed for the automated tests only.
-	window.LucyEditorInternals = { WriteModal: WriteModal, config: CFG };
+	window.LucyEditorInternals = { WriteModal: WriteModal, LucyHeaderButton: LucyHeaderButton, config: CFG };
 }( window.wp ) );
