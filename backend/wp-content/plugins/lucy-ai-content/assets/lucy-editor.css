@@ -1,0 +1,28 @@
+/* Lucy in the post editor: the sidebar panel and the Write with Lucy popup. */
+.lucy-ed-sidebar .components-button.is-primary { width: 100%; justify-content: center; }
+.lucy-ed-muted { color: #6b6b76; font-size: 12.5px; margin: 0 0 10px; }
+.lucy-ed-label { font-size: 11px; letter-spacing: .06em; text-transform: uppercase; color: #6b6b76; margin: 0 0 6px; }
+.lucy-ed-featured { margin-top: 14px; padding-top: 12px; border-top: 1px solid #e0e0e0; }
+
+.lucy-write-modal { max-width: 760px; }
+.lucy-write-modal .lucy-write-intro { color: #5a5a66; margin: 0 0 14px; max-width: 62ch; }
+.lucy-write-row { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+@media (max-width: 600px) { .lucy-write-row { grid-template-columns: 1fr; } }
+.lucy-write-hint { font-size: 12.5px; color: #6b6b76; margin: 6px 0 0; }
+.lucy-write-actions { display: flex; gap: 8px; align-items: center; margin-top: 16px; flex-wrap: wrap; }
+.lucy-write-preview { margin-top: 18px; border-top: 1px solid #e0e0e0; padding-top: 16px; }
+.lucy-write-preview h3 { margin: 0 0 4px; font-size: 19px; }
+.lucy-write-thumb { display: block; width: 100%; border-radius: 8px; margin: 12px 0; }
+.lucy-write-article { max-height: 340px; overflow: auto; border: 1px solid #e0e0e0; border-radius: 8px; padding: 14px; background: #fff; margin-top: 12px; }
+.lucy-write-article h2 { font-size: 19px; margin: 14px 0 4px; }
+.lucy-write-article h3 { font-size: 16px; margin: 12px 0 4px; }
+.lucy-write-article p, .lucy-write-article li { font-size: 14.5px; line-height: 1.6; }
+.lucy-write-check { margin-top: 10px; background: #fdf1dc; border-radius: 8px; padding: 10px 12px; font-size: 13px; }
+.lucy-serp { border: 1px solid #e0e0e0; border-radius: 8px; padding: 10px 12px; margin-top: 10px; background: #fafafa; }
+.lucy-serp-t { color: #1a0dab; font-size: 16px; }
+.lucy-serp-d { color: #5a5a66; font-size: 13px; }
+.lucy-using { background: #f3f0ff; border: 1px solid #ddd4ff; border-radius: 10px; padding: 10px 12px; margin-bottom: 14px; }
+.lucy-using p { margin: 0 0 2px; font-size: 13.5px; }
+.lucy-using-t { font-size: 11px; letter-spacing: .06em; text-transform: uppercase; color: #5a4bb5; }
+.lucy-write-faqs { margin-top: 12px; border-top: 1px solid #e0e0e0; padding-top: 10px; }
+.lucy-write-faqs p { font-size: 13.5px; margin: 0 0 8px; }
