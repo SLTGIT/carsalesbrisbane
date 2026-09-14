@@ -56,7 +56,7 @@ export default function InventoryToolbar({
             }
             aria-label="Sort by"
           >
-            <option value="new-arrival">Latest Arrival</option>
+            <option value="new-arrival">— Latest Arrival —</option>
             <option value="best">— Best match —</option>
             <option value="price-asc">Price: Low to High</option>
             <option value="price-desc">Price: High to Low</option>
