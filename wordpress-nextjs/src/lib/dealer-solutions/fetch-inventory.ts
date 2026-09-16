@@ -1,6 +1,7 @@
 import type { DealerInventoryFeed, DealerVehicle } from "@/types/inventory";
 
 const DEFAULT_REVALIDATE_SECONDS = 300;
+/** Dealer Solutions `Type` codes that mean two wheels. */
 
 /**
  * Server-only: fetches the Dealer Solutions MostRecentFile JSON.
@@ -34,5 +35,6 @@ export async function fetchDealerInventory(): Promise<DealerVehicle[]> {
   }
 
   const data = (await res.json()) as DealerInventoryFeed;
-  return Array.isArray(data.Vehicles) ? data.Vehicles : [];
+  const vehicles = data.Vehicles.filter((v)=> v.Type !== 'BIK');
+  return Array.isArray(data.Vehicles) ? vehicles : [];
 }

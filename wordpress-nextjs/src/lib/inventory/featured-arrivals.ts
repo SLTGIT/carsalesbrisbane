@@ -12,7 +12,11 @@ export function pickFeaturedArrivalVehicles(
   limit = DEFAULT_LIMIT
 ): DealerVehicle[] {
   return [...vehicles]
-    .filter((v) => priceNum(v) > 0)
+    .filter((v) => {
+      if (priceNum(v) > 0 && v.Type !== 'BIK') {
+        return v
+      }
+    })
     .sort((a, b) => {
       const ap = a.Photos?.[0]?.PhotoUrl?.trim() ? 1 : 0;
       const bp = b.Photos?.[0]?.PhotoUrl?.trim() ? 1 : 0;
