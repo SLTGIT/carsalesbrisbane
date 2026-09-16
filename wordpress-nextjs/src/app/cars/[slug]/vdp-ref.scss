@@ -389,7 +389,18 @@
     font-size: 0.95rem;
     line-height: 1.3;
     display: -webkit-box;
-    -webkit-line-clamp: 2;
+    -webkit-line-clamp: 1;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+  }
+
+  .vdp-ref-sticky-bar__variant {
+    font-size: 0.85rem;
+    font-weight: 500;
+    line-height: 1.3;
+    color: var(--cs-muted);
+    display: -webkit-box;
+    -webkit-line-clamp: 1;
     -webkit-box-orient: vertical;
     overflow: hidden;
   }
@@ -447,7 +458,10 @@
 
     .vdp-ref-sticky-bar__name {
       font-size: 0.85rem;
-      -webkit-line-clamp: 2;
+    }
+
+    .vdp-ref-sticky-bar__variant {
+      font-size: 0.75rem;
     }
   }
 

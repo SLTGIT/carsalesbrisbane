@@ -235,6 +235,8 @@ export default function VehicleVdpRefPage({
       <VdpAnalytics {...vdpAnalytics} />
       <VdpScrollStickyBar
         headline={headline}
+        titlePrimary={titlePrimary}
+        titleVariant={titleVariant}
         priceMain={priceMain}
         priceCaption={priceCaption}
         vehicleImage={featuredImage || undefined}
