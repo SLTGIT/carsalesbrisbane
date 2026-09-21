@@ -1,6 +1,6 @@
 import Link from "next/link";
 import Image from "next/image";
-import { fetchDealerInventory } from "@/lib/dealer-solutions/fetch-inventory";
+import { fetchDealerInventory, isBike } from "@/lib/dealer-solutions/fetch-inventory";
 import type { DealerVehicle } from "@/types/inventory";
 import { dominantUsedCondition } from "@/lib/inventory/popular-body-types";
 import {
@@ -112,7 +112,7 @@ export default async function PopularUsedCars() {
   let condition = "Used";
   let vehicles: DealerVehicle[] = [];
   try {
-    vehicles = await fetchDealerInventory();
+    vehicles = (await fetchDealerInventory()).filter((v) => !isBike(v));
     condition = dominantUsedCondition(vehicles);
   } catch {
     // keep "Used", empty vehicles → all cards use fallback images

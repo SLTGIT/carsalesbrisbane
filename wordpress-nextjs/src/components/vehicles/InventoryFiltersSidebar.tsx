@@ -206,11 +206,7 @@ export default function InventoryFiltersSidebar({
   const totalCondition = facets.conditions.reduce((a, o) => a + o.count, 0);
   const totalMakes = facets.makes.reduce((a, o) => a + o.count, 0);
   const totalModels = facets.models.reduce((a, o) => a + o.count, 0);
-  const makes = facets.makes.filter((m)=> {
-    if (m.value != 'harley-davidson') {
-      return m;
-    }
-  })
+
   const toggleInArray = (
     arr: string[],
     value: string,
@@ -308,7 +304,7 @@ export default function InventoryFiltersSidebar({
           }
         >
           <option value="">All makes</option>
-          {makes.map((o) => (
+          {facets.makes.map((o) => (
             <option key={o.value} value={o.value}>
               {o.label} ({o.count.toLocaleString("en-AU")})
             </option>
