@@ -165,3 +165,56 @@
         border-radius: 4px;
     }
 }
+
+// Contact lines and social profiles under "Our Identity". The footer had no
+// phone number or address at all, and on phones this is now the only place
+// the social links appear (the header strip drops them to stay on one row).
+.footerContact {
+  display: grid;
+  gap: 0.35rem;
+  font-style: normal;
+
+  a {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    min-height: 36px;
+    color: #fff;
+    text-decoration: none;
+
+    &:hover,
+    &:focus-visible {
+      color: #fff;
+      text-decoration: underline;
+    }
+  }
+}
+
+.social {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+  margin: 1rem 0 0;
+  padding: 0;
+  list-style: none;
+}
+
+.socialLink {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 44px;
+  height: 44px;
+  border: 1px solid rgba(255, 255, 255, 0.22);
+  border-radius: 999px;
+  color: #fff;
+  font-size: 1.05rem;
+  text-decoration: none;
+
+  &:hover,
+  &:focus-visible {
+    color: #fff;
+    border-color: rgba(255, 255, 255, 0.6);
+    background: rgba(255, 255, 255, 0.08);
+  }
+}

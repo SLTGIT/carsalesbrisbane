@@ -73,6 +73,7 @@ export function parseInventorySearchParams(
     maxPrice: parseIntOrNull(toStr(raw.maxPrice)),
     minYear: parseIntOrNull(toStr(raw.minYear)),
     maxYear: parseIntOrNull(toStr(raw.maxYear)),
+    minSeats: parseIntOrNull(toStr(raw.minSeats)),
     sort,
     view,
     page: Math.max(1, parseIntOrNull(toStr(raw.page)) ?? 1),
@@ -93,11 +94,20 @@ export function hasActiveInventoryFilters(f: InventoryFilterState): boolean {
   if (f.type.length) return true;
   if (f.minPrice !== null || f.maxPrice !== null) return true;
   if (f.minYear !== null || f.maxYear !== null) return true;
+  if (f.minSeats !== null) return true;
   return false;
 }
 
 function norm(s: string | undefined | null): string {
   return (s ?? "").trim();
+}
+
+/** Seat count from the feed, or null when the export does not carry one. */
+export function vehicleSeatCount(v: DealerVehicle): number | null {
+  const raw = v.SeatCount ?? v.Seats;
+  if (raw == null) return null;
+  const n = parseInt(String(raw).replace(/[^\d]/g, ""), 10);
+  return Number.isFinite(n) && n > 0 ? n : null;
 }
 
 export function priceNum(v: DealerVehicle): number {
@@ -157,6 +167,14 @@ export function filterDealerVehicles(
     const y = v.ManufactureYear;
     if (f.minYear !== null && y < f.minYear) return false;
     if (f.maxYear !== null && y > f.maxYear) return false;
+
+    // Vehicles with no seat count are excluded, not assumed to qualify — a
+    // "7 seats" search that shows a 5-seat car is worse than one that misses
+    // an unlabelled 7-seater.
+    if (f.minSeats !== null) {
+      const seats = vehicleSeatCount(v);
+      if (seats === null || seats < f.minSeats) return false;
+    }
 
     if (q) {
       const hay = [
@@ -397,6 +415,8 @@ export function serializeInventoryFilters(
     p.set("minYear", String(f.minYear));
   if (!omit.has("maxYear") && f.maxYear !== null)
     p.set("maxYear", String(f.maxYear));
+  if (!omit.has("minSeats") && f.minSeats !== null)
+    p.set("minSeats", String(f.minSeats));
   if (f.sort !== DEFAULT_INVENTORY_SORT) p.set("sort", f.sort);
   if (f.page > 1) p.set("page", String(f.page));
   return p.toString();

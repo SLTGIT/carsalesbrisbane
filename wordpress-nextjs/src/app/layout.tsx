@@ -30,7 +30,10 @@ const siteOrigin = rawSite
 
 const title = "Quality Used Cars Brisbane | Expert Finance & Sourcing";
 const description =
-  "Access premium used 4x4s, SUVs, and commercial vehicles. Based in Ormiston, we provide $0 deposit finance and statewide delivery from Brisbane to Cairns.";
+  // "$0 deposit finance" stays (the business lists it as a strength) but is
+  // now qualified: an unconditional credit promise in every search result and
+  // social preview is a representation only the lender can make.
+  "Quality used 4x4s, SUVs and work vehicles from Ormiston, with $0 deposit finance for approved applicants and delivery across Queensland.";
 const FALLBACK_GTM_ID = "GTM-W397LKXC";
 const FALLBACK_GA_MEASUREMENT_ID = "G-JYCTQ8RYJQ";
 const ADDITIONAL_GA_MEASUREMENT_IDS = "G-L5D4TXEDEM";

@@ -47,6 +47,7 @@ function clearFilterDimensions(f: InventoryFilterState): InventoryFilterState {
     maxPrice: null,
     minYear: null,
     maxYear: null,
+    minSeats: null,
     page: 1,
   };
 }
@@ -59,6 +60,7 @@ export default function InventoryFiltersSidebar({
   const current = useStableInventoryFilters();
   const { listingBasePathname } = useInventorySearchUrl();
 
+  const [mobileFiltersOpen, setMobileFiltersOpen] = useState(false);
   const [open, setOpen] = useState<Record<string, boolean>>({
     bodyColour: false,
     bodyType: false,
@@ -193,6 +195,15 @@ export default function InventoryFiltersSidebar({
         onRemove: () => push({ ...base, minYear: null, maxYear: null }),
       });
     }
+    // Set by the "7+ seats" quick search. There is no sidebar control for it,
+    // so this chip is the only way to see it is on and take it off.
+    if (current.minSeats !== null) {
+      out.push({
+        id: "seats",
+        label: `${current.minSeats}+ seats`,
+        onRemove: () => push({ ...base, minSeats: null }),
+      });
+    }
     if (current.q.trim()) {
       out.push({
         id: "q",
@@ -223,8 +234,34 @@ export default function InventoryFiltersSidebar({
     push(next);
   };
 
+  /*
+    Phones: filters start closed behind a button.
+
+    The sidebar stacks above the results below lg, and at its full height
+    (applied filters, all makes, eight collapsible groups) it pushed the first
+    vehicle about two screens down. Buyers came to see cars; the filters are
+    one tap away and the button says how many are on.
+  */
   return (
-    <aside className="inventory-sidebar" aria-label="Filters">
+    <>
+    <button
+      type="button"
+      className="inventory-filter-toggle"
+      aria-expanded={mobileFiltersOpen}
+      aria-controls="inventory-filters-panel"
+      onClick={() => setMobileFiltersOpen((v) => !v)}
+    >
+      <i className="bi bi-sliders" aria-hidden />
+      {mobileFiltersOpen ? "Hide filters" : "Filters"}
+      {chips.length > 0 ? (
+        <span className="inventory-filter-toggle__count">{chips.length}</span>
+      ) : null}
+    </button>
+    <aside
+      id="inventory-filters-panel"
+      className={`inventory-sidebar${mobileFiltersOpen ? "" : " inventory-sidebar--collapsed-mobile"}`}
+      aria-label="Filters"
+    >
       <div className="inventory-applied">
         <div className="inventory-applied-head">
           <h2 className="inventory-applied-title">Applied filters</h2>
@@ -484,6 +521,7 @@ export default function InventoryFiltersSidebar({
         />
       </Accordion>
     </aside>
+    </>
   );
 }
 

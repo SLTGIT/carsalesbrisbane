@@ -55,14 +55,13 @@ function FeaturesGrid({ items }: { items: VehicleVdpAiFeatureItem[] }) {
  * Everything on this page that is not straight from the dealer feed carries
  * this note, so a buyer can tell the record from compiled model research.
  */
-function AiSourceNote() {
-  return (
-    <p className="cs-muted small mb-3 vdp-ref-source-note">
-      Compiled from model research, not supplied in the dealer listing. Confirm
-      with the dealer before purchase.
-    </p>
-  );
-}
+/*
+  AiSourceNote ("Compiled from model research, not supplied in the dealer
+  listing. Confirm with the dealer before purchase.") is gone. The rows it
+  labelled — model-research estimates — are no longer sent: the vehicle page
+  filters to listing-sourced data on the server (see vdp-spec-filter.ts), so
+  there is nothing left for the note to describe.
+*/
 
 export interface VdpCarDetailsTabsProps {
   overviewParagraphs: string[];
@@ -135,7 +134,6 @@ export default function VdpCarDetailsTabs({
         aria-labelledby="vdp-tab-features"
         hidden={active !== "features"}
       >
-        {featureItems.length > 0 ? <AiSourceNote /> : null}
         <FeaturesGrid items={featureItems} />
       </div>
 
@@ -155,7 +153,6 @@ export default function VdpCarDetailsTabs({
             <h3 className="vdp-ref-spec-subheading h6 fw-bold mt-4 mb-2">
               Additional details
             </h3>
-            <AiSourceNote />
             <SpecGrid rows={engineTowingRows} />
           </>
         ) : null}

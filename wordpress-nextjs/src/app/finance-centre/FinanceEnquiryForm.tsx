@@ -3,6 +3,7 @@
 import FormSubmissionModal from "@/components/forms/FormSubmissionModal";
 import { submitLead } from "@/lib/leads/submit-lead-client";
 import RecaptchaField from "@/components/forms/RecaptchaField";
+import FormPrivacyNote from "@/components/forms/FormPrivacyNote";
 import {
   isValidEmail,
   isValidName,
@@ -517,6 +518,7 @@ export default function FinanceEnquiryForm() {
                   "Submit application"
                 )}
               </button>
+              <FormPrivacyNote purpose="assess and respond to your finance enquiry" />
             </form>
           </div>
         </div>

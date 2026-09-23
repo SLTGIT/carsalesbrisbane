@@ -26,6 +26,16 @@ import VdpDealerCommentsExpandable from "./VdpDealerCommentsExpandable";
 import VdpCarDetailsTabs from "./VdpCarDetailsTabs";
 import VdpShareLinks from "./VdpShareLinks";
 import { ORG_GOOGLE_MAPS_PLACE_URL, ORG_POSTAL_ADDRESS } from "@/lib/json-ld";
+import VdpPrimaryActions from "./VdpPrimaryActions";
+import VdpMobileActionBar from "./VdpMobileActionBar";
+import VdpEnquiryHashScroll from "./VdpEnquiryHashScroll";
+import VdpRecentlyViewed from "./VdpRecentlyViewed";
+import VdpFormSheet from "./VdpFormSheet";
+import { usefulVdpFaqs } from "@/lib/openai/vdp-faq-filter";
+import {
+  listingSourcedFeatures,
+  listingSourcedSpecRows,
+} from "@/lib/openai/vdp-spec-filter";
 
 const VehicleVdpRefInlineEnquiry = dynamic(
   () => import("./VehicleVdpRefInlineEnquiry"),
@@ -72,6 +82,9 @@ function buildFeedSpecRows(snapshot: VehicleVdpSnapshot): VehicleVdpAiSpecRow[] 
     .map((r) => ({ ...r, sourceTag: "listing" as const }));
 }
 const VehicleTestDriveForm = dynamic(() => import("./VehicleTestDriveForm"));
+const VehicleVideoWalkaroundRequest = dynamic(
+  () => import("./VehicleVideoWalkaroundRequest"),
+);
 const VehicleSimilarCarousel = dynamic(() => import("./VehicleSimilarCarousel"));
 
 function formatDealerAddress(): string {
@@ -114,7 +127,9 @@ function buildQuickSpecs(snapshot: VehicleVdpSnapshot): VdpQuickSpecItem[] {
   ];
 }
 
-function VdpFaqSection({ faqs }: { faqs: VehicleVdpAiFaq[] }) {
+function VdpFaqSection({ faqs: allFaqs }: { faqs: VehicleVdpAiFaq[] }) {
+  // Same filter feeds the FAQPage schema in page.tsx — the two must agree.
+  const faqs = usefulVdpFaqs(allFaqs);
   return (
     <section
       className="cs-card p-4 p-lg-5 mb-4 cs-faq vdp-ref-faq"
@@ -187,6 +202,9 @@ export interface VehicleVdpRefPageProps {
   cmsOverview?: string;
   /** Feed last-updated timestamp — shows the "New Arrival" badge while recent. */
   lastUpdated?: string | null;
+  /** Google rating shown beside the primary actions. Omitted when unavailable. */
+  ratingScore?: number;
+  ratingCount?: number;
 }
 
 export default function VehicleVdpRefPage({
@@ -212,6 +230,8 @@ export default function VehicleVdpRefPage({
   shareUrl,
   cmsOverview = "",
   lastUpdated = null,
+  ratingScore,
+  ratingCount,
 }: VehicleVdpRefPageProps) {
   const showNewArrival = isNewArrival(lastUpdated);
   const quickSpecs = buildQuickSpecs(snapshot);
@@ -242,6 +262,9 @@ export default function VehicleVdpRefPage({
         vehicleImage={featuredImage || undefined}
         imageAlt={listingTitle}
       />
+      <VdpMobileActionBar ctx={vdpAnalytics} telHref={telHref} />
+      <VdpEnquiryHashScroll />
+      <VdpFormSheet item={enquiryItem} titleLine={headline} />
 
       <section className="vdp-ref-main pb-4 pb-md-5 pt-3 pt-md-4">
         <div className="container">
@@ -318,12 +341,21 @@ export default function VehicleVdpRefPage({
                 <p className="vdp-ref-price-caption text-primary small fw-semibold mb-2 mt-1">
                   {priceCaption}
                 </p>
-                <p className="cs-muted small mb-0">
+                <p className="cs-muted small mb-3">
                   {showDriveAway
                     ? "Drive away price shown where applicable. "
                     : ""}
                   Finance available subject to approval.
                 </p>
+                {/* Mobile: the decision sits with the price, above the gallery
+                    and everything else. */}
+                <VdpPrimaryActions
+                  ctx={vdpAnalytics}
+                  telHref={telHref}
+                  dealerPhone={dealerPhone}
+                  ratingScore={ratingScore}
+                  ratingCount={ratingCount}
+                />
               </div>
 
               <div className="vdp-ref-gallery-wrap">
@@ -349,11 +381,14 @@ export default function VehicleVdpRefPage({
                 featureBullets={ai.dealerCommentsBullets}
               />
 
+              {/* Only listing-sourced data is published; model-research
+                  estimates are filtered here on the server, so they are not
+                  in the page payload either. */}
               <VdpCarDetailsTabs
                 overviewParagraphs={ai.overviewParagraphs}
-                carDetailsRows={ai.carDetailsRows}
-                featureItems={ai.featureItems}
-                engineTowingRows={ai.engineTowingRows}
+                carDetailsRows={listingSourcedSpecRows(ai.carDetailsRows)}
+                featureItems={listingSourcedFeatures(ai.featureItems)}
+                engineTowingRows={listingSourcedSpecRows(ai.engineTowingRows)}
                 feedRows={buildFeedSpecRows(snapshot)}
               />
 
@@ -407,11 +442,32 @@ export default function VehicleVdpRefPage({
                 <VehicleTestDriveForm item={enquiryItem} />
               </section>
 
+              <section
+                className="cs-card p-4 p-lg-5 mt-4"
+                id="request-video"
+              >
+                <h2 className="h4 fw-bold mb-3">Request a video walkaround</h2>
+                <p className="cs-muted mb-3">
+                  Buying from outside Brisbane, or cannot get to the yard yet?
+                  Ask for a walkaround video of this vehicle and we will send it
+                  through.
+                </p>
+                <VehicleVideoWalkaroundRequest item={enquiryItem} />
+              </section>
+
               {similarItems.length > 0 ? (
                 <div className="cs-card p-4 p-lg-5 mb-4 vdp-ref-main-similar mt-4">
                   <VehicleSimilarCarousel items={similarItems} />
                 </div>
               ) : null}
+
+              <VdpRecentlyViewed
+                current={{
+                  slug: snapshot.slug,
+                  title: headline,
+                  image: featuredImage,
+                }}
+              />
             </div>
 
             <aside className="col-lg-4 vdp-ref-sidebar">
@@ -427,12 +483,19 @@ export default function VehicleVdpRefPage({
                   <p className="vdp-ref-price-caption text-primary small fw-semibold mb-2">
                     {priceCaption}
                   </p>
-                  <p className="cs-muted small mb-0">
+                  <p className="cs-muted small mb-3">
                     {showDriveAway
                       ? "Drive away price shown where applicable. "
                       : ""}
                     Finance available subject to approval.
                   </p>
+                  <VdpPrimaryActions
+                    ctx={vdpAnalytics}
+                    telHref={telHref}
+                    dealerPhone={dealerPhone}
+                    ratingScore={ratingScore}
+                    ratingCount={ratingCount}
+                  />
                 </div>
 
                 <div

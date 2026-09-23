@@ -11,6 +11,7 @@ import {
   sanitizePhoneInput,
 } from "@/lib/forms/validation";
 import { useState, ChangeEvent, FormEvent, useCallback } from "react";
+import FormPrivacyNote from "@/components/forms/FormPrivacyNote";
 
 type FormDataType = {
   firstName: string;
@@ -354,6 +355,7 @@ export default function ContactForm() {
               "Submit enquiry"
             )}
           </button>
+          <FormPrivacyNote purpose="respond to your enquiry" />
         </form>
       </div>
 

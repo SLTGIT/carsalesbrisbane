@@ -9,6 +9,12 @@ import { buildListingSpecRows } from "@/lib/inventory/vehicle-specs";
 import Link from "next/link";
 import Image from "next/image";
 import VehicleCardSave from "./VehicleCardSave";
+import VehicleCardActions from "./VehicleCardActions";
+
+// Same number the vehicle page and header use for Car Sales Brisbane.
+const DEALER_TEL = (
+  process.env.NEXT_PUBLIC_DEALER_PHONE || "0418 908 870"
+).replace(/\s/g, "");
 
 interface VehicleCardProps {
   listing: VehicleListing;
@@ -67,6 +73,20 @@ export default function VehicleCard({
       ))}
     </ul>
   ) : null;
+
+  // Enquire / Call / Book a test drive on the card itself, so browsing can
+  // turn into a lead without a page load and a scroll first.
+  const cardActions = (
+    <VehicleCardActions
+      href={href}
+      telHref={`tel:${DEALER_TEL}`}
+      stockNumber={listing.stock_number ?? ""}
+      make={listing.make ?? ""}
+      model={listing.model ?? ""}
+      year={listing.year ?? ""}
+      slug={listing.slug}
+    />
+  );
 
   const articleClass = [
     "inventory-vehicle-card",
@@ -195,6 +215,7 @@ export default function VehicleCard({
               {egcNote}
             </div>
           </div>
+          {cardActions}
           <Link href="/finance-centre" className="inventory-card-finance-link">
             Calculate financing
           </Link>
@@ -267,6 +288,7 @@ export default function VehicleCard({
               />
             </Link>
           </div>
+          {cardActions}
         </div>
       </div>
     </article>

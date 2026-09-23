@@ -186,6 +186,8 @@ export interface InventoryFilterState {
   maxPrice: number | null;
   minYear: number | null;
   maxYear: number | null;
+  /** At least this many seats (e.g. 7 for the "7 seats" quick search). */
+  minSeats: number | null;
   sort: InventorySort;
   view: "grid" | "list";
   page: number;

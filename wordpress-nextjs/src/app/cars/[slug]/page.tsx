@@ -33,6 +33,8 @@ import {
   vehicleVdpCarListingGraphJsonLd,
 } from "@/lib/json-ld";
 
+import { getGoogleReviews } from "@/lib/google-reviews";
+import { usefulVdpFaqs } from "@/lib/openai/vdp-faq-filter";
 import "./vdp-ref.scss";
 
 /** Align with dealer inventory (5 min); VDP meta templates refresh faster via `vdp-meta` cache tag. */
@@ -161,6 +163,9 @@ export default async function VehicleDetailPage({
   const titlePrimary = vehicleCardPrimaryLine(listing);
   const titleVariant = vehicleCardTrimLine(listing);
 
+  // Social proof beside the buttons. getGoogleReviews() returns null on any
+  // failure and caches for an hour, so an outage costs the rating line only.
+  const reviewsSummary = await getGoogleReviews();
   const dealerPhone = process.env.NEXT_PUBLIC_DEALER_PHONE || "0418 908 870";
   const telHref = `tel:${dealerPhone.replace(/\s/g, "")}`;
   const priceMain =
@@ -213,7 +218,8 @@ export default async function VehicleDetailPage({
     description: seo.metaDescription,
     dealerPhoneE164: dealerPhoneToE164Au(dealerPhone),
     inventoryVehicles: allVehicles,
-    faqs: ai.faqs,
+    // Same filter the page renders with — schema and page must agree.
+    faqs: usefulVdpFaqs(ai.faqs),
   });
 
   return (
@@ -244,6 +250,8 @@ export default async function VehicleDetailPage({
         shareUrl={pageUrlHttps}
         cmsOverview={seo.overview}
         lastUpdated={listing.last_updated ?? null}
+        ratingScore={reviewsSummary?.averageScore}
+        ratingCount={reviewsSummary?.reviewCount}
       />
     </>
   );

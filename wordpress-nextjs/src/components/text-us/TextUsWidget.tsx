@@ -77,7 +77,14 @@ const DEALER_PHONE_DISPLAY =
 
 /** sessionStorage: after hide, only the “Text us” pill shows until a new tab/session. */
 const SESSION_HIDE_GREETING_KEY = "cs-textus-hide-greeting";
-const GREETING_AUTO_HIDE_MS = 12_000;
+/*
+  The greeting used to appear the moment a page loaded and stay for 12
+  seconds, over whatever sat in the bottom-right corner — on the homepage, the
+  featured-stock copy and its "View all stock" link, during the visitor's
+  first look at the page. It now waits a few seconds and leaves sooner.
+*/
+const GREETING_DELAY_MS = 5_000;
+const GREETING_AUTO_HIDE_MS = 8_000;
 
 export default function TextUsWidget() {
   const baseId = useId();
@@ -138,6 +145,16 @@ export default function TextUsWidget() {
   }, [persistHideGreeting]);
 
   useEffect(() => {
+    /*
+      No greeting bubble on a vehicle page. It opens over the price card, which
+      is now where Enquire, Test drive, Call and the rest live, and it sits
+      there for 12 seconds — covering the buttons during the exact moment the
+      visitor is deciding. The Text us button itself stays available.
+    */
+    if (pathname?.startsWith("/cars/")) {
+      setShowGreetingBubble(false);
+      return;
+    }
     try {
       if (sessionStorage.getItem(SESSION_HIDE_GREETING_KEY) === "1") {
         setShowGreetingBubble(false);
@@ -146,8 +163,12 @@ export default function TextUsWidget() {
     } catch {
       /* ignore */
     }
-    setShowGreetingBubble(true);
-  }, []);
+    const id = window.setTimeout(
+      () => setShowGreetingBubble(true),
+      GREETING_DELAY_MS,
+    );
+    return () => window.clearTimeout(id);
+  }, [pathname]);
 
   useEffect(() => {
     if (!showGreetingBubble || open) return;
@@ -239,7 +260,10 @@ export default function TextUsWidget() {
   };
 
   return (
-    <div className={styles.wrap}>
+    // `cs-textus-wrap` is a stable hook for global CSS — the module class is
+    // hashed, so the vehicle page cannot lift this clear of its sticky action
+    // bar without it.
+    <div className={`${styles.wrap} cs-textus-wrap`}>
       {!open && (
         <div className={`${styles.teaser} ${styles.pointer}`}>
           {showGreetingBubble ? (

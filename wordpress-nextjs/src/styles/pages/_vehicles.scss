@@ -3477,3 +3477,156 @@ button.vdp-cta {
     font-size: 0.8125rem;
     color: var(--secondary, #666);
 }
+
+/*
+  Enquire / Call on the stock card.
+
+  Until now a card's only actions were "Calculate financing" and "View
+  details", so every enquiry cost a page load and a scroll first.
+*/
+.inventory-card-actions {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 0.5rem;
+  margin-top: 0.75rem;
+}
+
+.inventory-card-action {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.4rem;
+  min-height: 44px; // touch target
+  padding: 0.55rem 0.7rem;
+  border-radius: 0.65rem;
+  border: 1px solid var(--cs-line);
+  background: #fff;
+  color: var(--cs-ink);
+  font-size: 0.85rem;
+  font-weight: 600;
+  line-height: 1.15;
+  text-decoration: none;
+  transition: border-color 0.15s ease, background 0.15s ease, filter 0.15s ease;
+
+  &:hover,
+  &:focus-visible {
+    border-color: var(--cs-primary);
+    color: var(--cs-ink);
+    background: rgba(0, 120, 255, 0.04);
+  }
+
+  &--primary {
+    border-color: var(--cs-primary);
+    background: var(--cs-primary);
+    color: #fff;
+
+    &:hover,
+    &:focus-visible {
+      color: #fff;
+      background: var(--cs-primary);
+      filter: brightness(0.93);
+    }
+  }
+
+  i {
+    font-size: 0.95rem;
+  }
+}
+
+.inventory-card-delivery {
+  grid-column: 1 / -1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.35rem;
+  margin: 0;
+  font-size: 0.78rem;
+  color: var(--cs-muted);
+
+  i {
+    color: var(--cs-primary);
+  }
+}
+
+/*
+  Mobile filter toggle. Hidden from lg up, where the sidebar sits beside the
+  results and costs no vertical space.
+*/
+.inventory-filter-toggle {
+  display: none;
+}
+
+@media (max-width: 991px) {
+  .inventory-filter-toggle {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.5rem;
+    width: 100%;
+    min-height: 48px;
+    padding: 0.6rem 1rem;
+    border: 1px solid var(--cs-line);
+    border-radius: 0.75rem;
+    background: #fff;
+    color: var(--cs-ink);
+    font-weight: 600;
+    font-size: 0.95rem;
+  }
+
+  .inventory-filter-toggle__count {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    min-width: 1.4rem;
+    height: 1.4rem;
+    padding: 0 0.35rem;
+    border-radius: 999px;
+    background: var(--cs-primary);
+    color: #fff;
+    font-size: 0.75rem;
+  }
+
+  .inventory-sidebar--collapsed-mobile {
+    display: none;
+  }
+}
+
+/*
+  Readability and touch fixes from the 2026-09-23 UI audit.
+
+  - Price qualifiers ("EGC - Excluding Government Charges") were 10.4px. What
+    the price includes is part of the price; it has to be readable, not fine
+    print. 12px is the floor.
+  - "Calculate financing" on each card was a 20px-tall text link.
+  - Search and filter fields at 14px make iOS Safari zoom the whole page when
+    a buyer taps into them; 16px stops that.
+*/
+.inventory-card-driveaway-note,
+.inventory-card-driveaway-note--aside {
+  font-size: 0.75rem !important;
+}
+
+.inventory-card-new-arrival-badge {
+  font-size: 0.72rem !important;
+}
+
+@media (max-width: 767px) {
+  .inventory-card-finance-link {
+    display: inline-flex;
+    align-items: center;
+    min-height: 44px;
+    margin-top: 0;
+    margin-bottom: 0;
+  }
+
+  .inventory-srp input,
+  .inventory-srp select,
+  .inventory-srp textarea {
+    font-size: 16px !important;
+  }
+}
+
+// Test drive spans the card under Enquire / Call.
+.inventory-card-action--wide {
+  grid-column: 1 / -1;
+}

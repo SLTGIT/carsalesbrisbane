@@ -350,3 +350,11 @@
     color: #2d3439;
     margin-top: 0.15rem;
 }
+
+// 15.2px triggers iOS Safari's zoom-on-focus when a buyer taps the phone menu
+// search; 16px is the threshold that stops it.
+@media (max-width: 991px) {
+  .header-search__input {
+    font-size: 16px;
+  }
+}

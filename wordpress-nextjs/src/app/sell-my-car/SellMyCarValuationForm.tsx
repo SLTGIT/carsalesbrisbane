@@ -13,6 +13,7 @@ import {
 import "@/app/contact/contact.css";
 import { useCallback, useState, ChangeEvent, FormEvent } from "react";
 import { SELL_MY_CAR_MAKES, sellMyCarMakeLabel } from "./sell-my-car-makes";
+import FormPrivacyNote from "@/components/forms/FormPrivacyNote";
 
 const FORM_TYPE = "Sell My Car Enquiry (Sell My Car Form)";
 
@@ -451,6 +452,7 @@ export default function SellMyCarValuationForm() {
             )}
           </button>
         </div>
+        <FormPrivacyNote purpose="value your vehicle and contact you about it" />
       </form>
 
       <FormSubmissionModal

@@ -25,20 +25,34 @@ export default async function Header() {
 
   return (
     <header className="sticky-top cs-header">
-      <div className="cs-topbar py-0 py-3 py-lg-0">
-        <div className="container d-flex flex-wrap justify-content-center justify-content-lg-end align-items-center gap-3 gap-lg-4 ">
+      {/*
+        Phones: one row — rating on the left, call button on the right. The
+        strip used to wrap to three or more rows (reviews, full street
+        address, phone, social icons) inside a header that stays pinned, so it
+        took a large share of every phone screen, and the phone link was a
+        small unformatted "0418908870". Address and social links return from
+        the sm/lg breakpoints; the footer carries both on phones.
+      */}
+      <div className="cs-topbar py-2 py-lg-0">
+        <div className="container cs-topbar__row d-flex flex-wrap justify-content-between justify-content-lg-end align-items-center gap-2 gap-lg-4">
           <a
-            className="d-inline-flex align-items-center gap-2 text-decoration-none"
+            className="cs-topbar__reviews d-inline-flex align-items-center gap-2 text-decoration-none"
             target="_blank"
             rel="noopener noreferrer"
             href={CAR_SALES_BRISBANE_GOOGLE_MAPS_URL}
             aria-label={`Google reviews: ${summaryLine}`}
           >
             <GoogleRatingStars score={score} />
-            <span className="cs-topbar__review-line">{summaryLine}</span>
+            <span className="cs-topbar__review-line d-none d-sm-inline">
+              {summaryLine}
+            </span>
+            <span className="cs-topbar__review-line d-sm-none">
+              {score.toFixed(1)}
+              {summary ? ` · ${summary.reviewCount} reviews` : ""}
+            </span>
           </a>
           <a
-            className="d-inline-flex align-items-center gap-2"
+            className="d-none d-lg-inline-flex align-items-center gap-2"
             target="_blank"
             rel="noopener noreferrer"
             href={CAR_SALES_BRISBANE_GOOGLE_MAPS_URL}
@@ -46,11 +60,14 @@ export default async function Header() {
             <i className="bi bi-geo-alt-fill"></i>
             <span>56 Freeth St W, Ormiston QLD 4160, Australia</span>
           </a>
-          <a className="d-inline-flex align-items-center gap-2" href="tel:0418908870">
+          <a
+            className="cs-topbar__phone d-inline-flex align-items-center gap-2"
+            href="tel:0418908870"
+          >
             <i className="bi bi-telephone-fill"></i>
-            <span>0418908870</span>
+            <span>0418 908 870</span>
           </a>
-          <span className="d-inline-flex align-items-center gap-3">
+          <span className="cs-topbar__social d-none d-sm-inline-flex align-items-center gap-3">
             <a href={facebookUrl} target="_blank" rel="noopener noreferrer" aria-label="Facebook">
               <i className="bi bi-facebook"></i>
             </a>
