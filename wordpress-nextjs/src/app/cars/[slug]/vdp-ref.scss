@@ -1318,3 +1318,45 @@
   text-transform: uppercase;
   color: var(--cs-ink);
 }
+// Sold vehicle page (SoldVehicleView): kept for 30 days after the car leaves
+// the feed. The badge is deliberately loud so the page cannot be misread as
+// available stock.
+.vdp-sold__badge {
+  display: inline-block;
+  padding: 0.3rem 0.8rem;
+  border-radius: 0.4rem;
+  background: #c62828;
+  color: #fff;
+  font-weight: 800;
+  font-size: 0.9rem;
+  letter-spacing: 0.08em;
+}
+
+.vdp-sold__gallery {
+  position: relative;
+  filter: grayscale(0.35);
+}
+
+.vdp-sold__specs {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+  gap: 0.75rem;
+  margin: 0;
+
+  dt {
+    font-size: 0.75rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    color: var(--cs-muted);
+  }
+
+  dd {
+    margin: 0;
+    font-weight: 600;
+  }
+}
+
+.vdp-sold__card {
+  position: sticky;
+  top: calc(var(--vdp-sticky-top, 112px) + 1rem);
+}

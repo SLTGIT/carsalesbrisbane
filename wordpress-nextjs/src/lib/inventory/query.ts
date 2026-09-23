@@ -9,7 +9,10 @@ import {
   vehicleDisplayFuelType,
   vehicleDisplayTransmission,
 } from "@/lib/inventory/vehicle-specs";
-import { dealerVehicleLastUpdatedMs } from "@/lib/inventory/new-arrival";
+import {
+  dealerVehicleArrivalMs,
+  dealerVehicleLastUpdatedMs,
+} from "@/lib/inventory/new-arrival";
 import {
   mergePathAugmentIntoFilters,
   pathSlugForInventoryListing,
@@ -204,12 +207,17 @@ export function sortDealerVehicles(
   const copy = [...vehicles];
   switch (sort) {
     case "new-arrival": {
-      // Most recently updated first; undated stock falls to the end, newest year first.
+      // Most recently arrived in stock first (ReceiptDate), then latest edit,
+      // then newest year. Undated stock falls to the end.
+      const arrived = new Map(
+        copy.map((v) => [v, dealerVehicleArrivalMs(v) ?? -Infinity]),
+      );
       const updated = new Map(
         copy.map((v) => [v, dealerVehicleLastUpdatedMs(v) ?? -Infinity]),
       );
       copy.sort(
         (a, b) =>
+          arrived.get(b)! - arrived.get(a)! ||
           updated.get(b)! - updated.get(a)! ||
           b.ManufactureYear - a.ManufactureYear,
       );

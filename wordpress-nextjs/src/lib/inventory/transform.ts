@@ -135,7 +135,8 @@ export function dealerVehicleToListing(v: DealerVehicle): VehicleListing {
     last_updated:
       v.LastUpdated == null ? null : String(v.LastUpdated).trim() || null,
     // Resolved here, on the server, so every renderer of this listing agrees.
-    is_new_arrival: isNewArrival(v.LastUpdated),
+    // Arrival in stock (ReceiptDate), not the last edit (LastUpdated).
+    is_new_arrival: isNewArrival(v.ReceiptDate ?? v.LastUpdated),
   };
 }
 

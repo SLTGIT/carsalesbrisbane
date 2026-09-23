@@ -76,6 +76,8 @@ export interface DealerVehicle {
    * it through `parseLastUpdatedMs`.
    */
   LastUpdated?: unknown;
+  /** Date the dealer received the vehicle into stock ("2026-09-21"). */
+  ReceiptDate?: unknown;
 }
 
 export interface DealerInventoryFeed {
@@ -140,7 +142,8 @@ export interface VehicleListing {
   /** Feed last-updated timestamp as supplied, e.g. "2026-09-03T15:45:37". */
   last_updated: string | null;
   /**
-   * Whether `last_updated` fell inside the New Arrival window when this
+   * Whether the vehicle's arrival date (feed ReceiptDate, else LastUpdated)
+   * fell inside the New Arrival window when this
    * listing was built. Decided once, on the server, because the card that
    * reads it is re-rendered on the client during hydration — recomputing it
    * there against a fresh `Date.now()` lets a listing sitting on the window

@@ -35,6 +35,9 @@ import {
 
 import { getGoogleReviews } from "@/lib/google-reviews";
 import { usefulVdpFaqs } from "@/lib/openai/vdp-faq-filter";
+import { findRecentlySoldBySlug } from "@/lib/inventory/sold-archive";
+import { fetchDealerInventory } from "@/lib/dealer-solutions/fetch-inventory";
+import SoldVehicleView from "@/components/vehicles/SoldVehicleView";
 import "./vdp-ref.scss";
 
 /** Align with dealer inventory (5 min); VDP meta templates refresh faster via `vdp-meta` cache tag. */
@@ -95,6 +98,19 @@ export async function generateMetadata({ params }: VehicleDetailPageProps) {
   const { slug } = await params;
   const res = await loadVehicleVdpMetaBySlug(slug);
   if (!res.ok) {
+    if (res.error === "not_found") {
+      const sold = await findRecentlySoldBySlug(slug);
+      if (sold) {
+        const l = dealerVehicleToListing(sold.vehicle);
+        return {
+          title: `SOLD: ${vehicleCardPrimaryLine(l)} | Car Sales Brisbane`,
+          description:
+            "This vehicle has been sold. See similar used cars in stock at Car Sales Brisbane, proudly supported by Statewide Auto Group.",
+          // Sold stock is kept for visitors, not for search results.
+          robots: { index: false, follow: true },
+        };
+      }
+    }
     return { title: "Vehicle not found | Car Sales Brisbane" };
   }
   const { listing, vehicle: v, seoTitle, metaDescription, featuredImage, canonicalPath } =
@@ -133,7 +149,12 @@ export default async function VehicleDetailPage({
   if (res.ok === false && res.error === "redirect") {
     permanentRedirect(res.redirectTo);
   }
-  if (!res.ok) notFound();
+  if (!res.ok) {
+    // Sold in the last 30 days: keep the page, clearly marked SOLD.
+    const sold = await findRecentlySoldBySlug(slug);
+    if (!sold) notFound();
+    return renderSoldVehicle(sold.vehicle);
+  }
 
   const { vehicle: v, listing, snapshot, ai, seo, allVehicles } = res;
   const canonicalSlug = buildVehicleSlug(v);
@@ -249,10 +270,73 @@ export default async function VehicleDetailPage({
         similarItems={similar}
         shareUrl={pageUrlHttps}
         cmsOverview={seo.overview}
-        lastUpdated={listing.last_updated ?? null}
+        // Arrival in stock drives the "New Arrival" badge, not the last edit.
+        lastUpdated={
+          (v.ReceiptDate != null ? String(v.ReceiptDate) : null) ??
+          listing.last_updated ??
+          null
+        }
         ratingScore={reviewsSummary?.averageScore}
         ratingCount={reviewsSummary?.reviewCount}
       />
     </>
+  );
+}
+
+
+/**
+ * SOLD view for a vehicle that left the feed within the retention window.
+ * No price and no offer schema: the page must not read as available stock.
+ */
+async function renderSoldVehicle(v: DealerVehicle) {
+  const listing = dealerVehicleToListing(v);
+  const allVehicles = await fetchDealerInventory();
+  const dealerPhone = process.env.NEXT_PUBLIC_DEALER_PHONE || "0418 908 870";
+  const shareUrl = absoluteShareUrl(`/cars/${buildVehicleSlug(v)}`);
+  const featured = v.Photos?.[0]?.PhotoUrl ?? listing.featured_image ?? "";
+  const galleryImages: VehicleImage[] = (v.Photos ?? []).slice(1).map((p, i) => ({
+    id: i,
+    url: p.PhotoUrl,
+    thumbnail: p.PhotoUrl,
+    medium: p.PhotoUrl,
+    large: p.PhotoUrl,
+    alt: `${listing.title} (sold)`,
+  }));
+  const odometer =
+    listing.odometer != null && listing.odometer > 0
+      ? `${listing.odometer.toLocaleString("en-AU")} km`
+      : "";
+  const specs = [
+    { label: "Odometer", value: odometer },
+    { label: "Transmission", value: listing.transmission ?? "" },
+    { label: "Body type", value: listing.body_type ?? "" },
+    { label: "Fuel", value: listing.fuel_type ?? "" },
+    { label: "Colour", value: listing.body_colour ?? "" },
+  ].filter((s) => String(s.value).trim());
+
+  return (
+    <SoldVehicleView
+      titleLine={vehicleCardPrimaryLine(listing)}
+      variantLine={vehicleCardTrimLine(listing)}
+      featuredImage={featured}
+      galleryImages={galleryImages}
+      specs={specs}
+      enquiryItem={{
+        image: absoluteAssetUrl(featured, shareUrl),
+        make: v.Make?.trim() || "",
+        model: v.Model?.trim() || "",
+        year: String(listing.year),
+        stock: listing.stock_number || String(v.ItemID),
+        rego: "",
+        status: "Sold",
+        tag: "Car Sales Brisbane",
+        url: shareUrl,
+        condition: listing.condition || v.Condition || "used",
+        price: "",
+      }}
+      similarItems={getSimilarVehicles(allVehicles, v, 6).map(toSimilarItem)}
+      telHref={`tel:${dealerPhone.replace(/\s/g, "")}`}
+      dealerPhone={dealerPhone}
+    />
   );
 }
