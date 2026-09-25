@@ -73,7 +73,7 @@ function maskAuMobile(digits: string): string {
 }
 
 const DEALER_PHONE_DISPLAY =
-  process.env.NEXT_PUBLIC_DEALER_PHONE || "0418 908 870";
+  process.env.NEXT_PUBLIC_DEALER_PHONE || "07 3390 3057";
 
 /** sessionStorage: after hide, only the “Text us” pill shows until a new tab/session. */
 const SESSION_HIDE_GREETING_KEY = "cs-textus-hide-greeting";

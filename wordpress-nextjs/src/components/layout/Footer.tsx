@@ -49,8 +49,8 @@ export default async function Footer() {
             </p>
             <p className="text-white-50 mb-3">QLD Dealer License: 4065904</p>
             <address className={`${styles.footerContact} mb-0`}>
-              <a href="tel:0418908870">
-                <i className="bi bi-telephone-fill" aria-hidden /> 0418 908 870
+              <a href="tel:0733903057">
+                <i className="bi bi-telephone-fill" aria-hidden /> 07 3390 3057
               </a>
               <a
                 href="https://maps.app.goo.gl/3A3Upx5e3bczUtsq9"

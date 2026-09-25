@@ -300,7 +300,7 @@ export function organizationJsonLd(origin: string) {
     url: siteOrigin,
     logo: { "@type": "ImageObject", url: logoUrl },
     description: ORGANIZATION_DESCRIPTION,
-    telephone: "+61418908870",
+    telephone: "+61733903057",
     email: "sales@carsalesbrisbane.com.au",
     address: { ...ORG_POSTAL_ADDRESS },
     sameAs: ORG_SAME_AS.map((u) => urlWithoutQueryForSchema(u)),
@@ -367,7 +367,7 @@ export function autoDealerJsonLd(origin: string) {
       `${siteOrigin}/assets/images/carsalesbrisbane_logo.png`,
     ),
     url: siteOrigin,
-    telephone: "+61418908870",
+    telephone: "+61733903057",
     email: "sales@carsalesbrisbane.com.au",
     address: { ...ORG_POSTAL_ADDRESS },
     parentOrganization: STATEWIDE_AUTO_GROUP_REF,
@@ -896,7 +896,7 @@ export function vehicleJsonLdFromInventory(
   ) as Record<string, unknown>;
 }
 
-/** AU mobile/landline to E.164 for JSON-LD `telephone` (e.g. +61418908870). */
+/** AU mobile/landline to E.164 for JSON-LD `telephone` (e.g. +61733903057). */
 export function dealerPhoneToE164Au(raw: string): string {
   const t = (raw || "").trim();
   const d = t.replace(/\D/g, "");
@@ -904,7 +904,7 @@ export function dealerPhoneToE164Au(raw: string): string {
   if (d.startsWith("61") && d.length >= 11) return `+${d}`;
   if (d.startsWith("0") && d.length >= 9) return `+61${d.slice(1)}`;
   if (d.length >= 9) return `+${d}`;
-  return "+61418908870";
+  return "+61733903057";
 }
 
 function driveWheelPlainForCarSchema(drive: string): string | undefined {

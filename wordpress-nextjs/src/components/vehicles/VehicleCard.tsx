@@ -13,7 +13,7 @@ import VehicleCardActions from "./VehicleCardActions";
 
 // Same number the vehicle page and header use for Car Sales Brisbane.
 const DEALER_TEL = (
-  process.env.NEXT_PUBLIC_DEALER_PHONE || "0418 908 870"
+  process.env.NEXT_PUBLIC_DEALER_PHONE || "07 3390 3057"
 ).replace(/\s/g, "");
 
 interface VehicleCardProps {

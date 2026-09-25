@@ -62,10 +62,10 @@ export default async function Header() {
           </a>
           <a
             className="cs-topbar__phone d-inline-flex align-items-center gap-2"
-            href="tel:0418908870"
+            href="tel:0733903057"
           >
             <i className="bi bi-telephone-fill"></i>
-            <span>0418 908 870</span>
+            <span>07 3390 3057</span>
           </a>
           <span className="cs-topbar__social d-none d-sm-inline-flex align-items-center gap-3">
             <a href={facebookUrl} target="_blank" rel="noopener noreferrer" aria-label="Facebook">

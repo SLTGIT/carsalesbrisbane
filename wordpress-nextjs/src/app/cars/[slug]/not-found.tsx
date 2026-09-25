@@ -4,7 +4,7 @@ import { dealerVehicleToListing } from "@/lib/inventory/transform";
 import { sortDealerVehicles } from "@/lib/inventory/query";
 import VehicleCard from "@/components/vehicles/VehicleCard";
 // Same source the vehicle page uses for Car Sales Brisbane's number.
-const DEALER_PHONE = process.env.NEXT_PUBLIC_DEALER_PHONE || "0418 908 870";
+const DEALER_PHONE = process.env.NEXT_PUBLIC_DEALER_PHONE || "07 3390 3057";
 const DEALER_PHONE_TEL = DEALER_PHONE.replace(/\s/g, "");
 
 export const metadata = {

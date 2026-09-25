@@ -69,8 +69,8 @@ export default async function ContactInfo() {
                     >
                       Sales &amp; Service
                     </div>
-                    <a className="cs-business-link fs-3 d-inline-block" href="tel:0418908870">
-                      0418 908 870
+                    <a className="cs-business-link fs-3 d-inline-block" href="tel:0733903057">
+                      07 3390 3057
                     </a>
                     <p className="mt-2 mb-1">
                       <strong>Working Hours:</strong>

@@ -16,7 +16,7 @@ function buildLlmsMarkdown(): string {
 
 - Business: Car Sales Brisbane, an online used-car sales channel supported by [Statewide Auto Group](https://statewideautogroup.com.au/).
 - Yard: 56 Freeth St W, Ormiston QLD 4160, Australia (Redlands, south-east Brisbane).
-- Phone: 0418 908 870.
+- Phone: 07 3390 3057.
 - Hours: Mon–Fri 8:00am–5:30pm, Sat 8:00am–3:00pm, Sun closed.
 - QLD Motor Dealer Licence: 4065904.
 - Sells: used cars, 4x4s, utes, SUVs and work vehicles; current stock is listed with price, kilometres and specifications.

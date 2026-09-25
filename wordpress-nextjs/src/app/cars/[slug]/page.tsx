@@ -187,7 +187,7 @@ export default async function VehicleDetailPage({
   // Social proof beside the buttons. getGoogleReviews() returns null on any
   // failure and caches for an hour, so an outage costs the rating line only.
   const reviewsSummary = await getGoogleReviews();
-  const dealerPhone = process.env.NEXT_PUBLIC_DEALER_PHONE || "0418 908 870";
+  const dealerPhone = process.env.NEXT_PUBLIC_DEALER_PHONE || "07 3390 3057";
   const telHref = `tel:${dealerPhone.replace(/\s/g, "")}`;
   const priceMain =
     listing.show_drive_away && listing.drive_away_price
@@ -291,7 +291,7 @@ export default async function VehicleDetailPage({
 async function renderSoldVehicle(v: DealerVehicle) {
   const listing = dealerVehicleToListing(v);
   const allVehicles = await fetchDealerInventory();
-  const dealerPhone = process.env.NEXT_PUBLIC_DEALER_PHONE || "0418 908 870";
+  const dealerPhone = process.env.NEXT_PUBLIC_DEALER_PHONE || "07 3390 3057";
   const shareUrl = absoluteShareUrl(`/cars/${buildVehicleSlug(v)}`);
   const featured = v.Photos?.[0]?.PhotoUrl ?? listing.featured_image ?? "";
   const galleryImages: VehicleImage[] = (v.Photos ?? []).slice(1).map((p, i) => ({
