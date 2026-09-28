@@ -20,6 +20,7 @@ import {
   useId,
 } from "react";
 import type { VehicleEnquiryItemPayload } from "./VehicleEnquiryForm";
+import FormPrivacyNote from "@/components/forms/FormPrivacyNote";
 
 const PREFERRED_TIME_OPTIONS = [
   "Morning",
@@ -92,16 +93,21 @@ export default function VehicleTestDriveForm({
       return;
     }
 
-    if (!preferredDate.trim()) {
-      setStatus("error");
-      setStatusMessage("Please choose a preferred date.");
-      return;
-    }
-
-    const message = [
-      `Preferred test drive date: ${preferredDate.trim()}`,
-      `Preferred time: ${preferredTime}`,
-    ].join("\n");
+    /*
+      Date and time are no longer compulsory. Someone who wants a test drive
+      but has not settled on a day was previously stopped at the form and had
+      to invent one; the dealership confirms the time on the callback anyway,
+      so an enquiry with no date is still a lead worth having.
+    */
+    const message =
+      [
+        preferredDate.trim()
+          ? `Preferred test drive date: ${preferredDate.trim()}`
+          : "",
+        preferredTime ? `Preferred time: ${preferredTime}` : "",
+      ]
+        .filter(Boolean)
+        .join("\n") || "No preferred date given — please call to arrange a time.";
 
     setLoading(true);
     setSubmittedFirstName(firstName.trim());
@@ -273,10 +279,7 @@ export default function VehicleTestDriveForm({
               className="cs-contact-form__label"
               htmlFor={`${idPrefix}-date`}
             >
-              Preferred date
-              <span className="cs-contact-form__req" aria-hidden>
-                *
-              </span>
+              Preferred date <span className="cs-muted">(optional)</span>
             </label>
             <input
               id={`${idPrefix}-date`}
@@ -284,7 +287,6 @@ export default function VehicleTestDriveForm({
               type="date"
               min={minDate}
               className="form-control rounded-pill cs-contact-form__control"
-              required
               value={preferredDate}
               onChange={(e: ChangeEvent<HTMLInputElement>) =>
                 setPreferredDate(e.target.value)
@@ -298,16 +300,12 @@ export default function VehicleTestDriveForm({
             className="cs-contact-form__label"
             htmlFor={`${idPrefix}-time`}
           >
-            Preferred time
-            <span className="cs-contact-form__req" aria-hidden>
-              *
-            </span>
+            Preferred time <span className="cs-muted">(optional)</span>
           </label>
           <select
             id={`${idPrefix}-time`}
             name="preferredTime"
             className="form-select rounded-pill cs-contact-form__control"
-            required
             value={preferredTime}
             onChange={(e: ChangeEvent<HTMLSelectElement>) =>
               setPreferredTime(
@@ -347,6 +345,7 @@ export default function VehicleTestDriveForm({
             "Request test drive"
           )}
         </button>
+        <FormPrivacyNote purpose="arrange your test drive" />
       </form>
 
       <FormSubmissionModal

@@ -25,6 +25,15 @@ export function dealerVehicleLastUpdatedMs(v: DealerVehicle): number | null {
 }
 
 /**
+ * When the vehicle arrived in stock: the feed's ReceiptDate (the day the
+ * dealer received it), falling back to LastUpdated only if a vehicle lacks it.
+ * LastUpdated moves on every edit, so it badged long-held stock as new.
+ */
+export function dealerVehicleArrivalMs(v: DealerVehicle): number | null {
+  return parseLastUpdatedMs(v.ReceiptDate) ?? parseLastUpdatedMs(v.LastUpdated);
+}
+
+/**
  * How recent `LastUpdated` must be for the "New Arrival" badge, in days.
  * Only stock touched within this window is badged, so the badge keeps meaning
  * something — with it off, every vehicle carrying a readable date qualifies.

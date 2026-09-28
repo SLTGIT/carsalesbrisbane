@@ -20,31 +20,35 @@ async function resolveSiteOrigin(): Promise<string> {
 }
 
 function buildRobotsBody(sitemapUrl: string): string {
+  /*
+    One group for every crawler that is welcome, with the same rules.
+
+    The file used to give Googlebot, Bingbot and the AI search crawlers their
+    own "Allow: /" groups. A crawler that matches a named group ignores the
+    "*" group entirely, so those crawlers were never told to stay out of /api/
+    or the unbounded /search?… filter combinations the "*" group excludes —
+    the exact crawl trap the rule was written for. Grouping the user-agents
+    applies the same rules to all of them.
+
+    Search and answer crawlers are welcome: Google (incl. AI Overviews), Bing
+    (incl. Copilot), OpenAI search, Perplexity, Anthropic's search and
+    user-request fetchers, DuckDuckGo's assistant and Apple. The training-only
+    crawlers below stay blocked, as the business chose.
+  */
   return `User-agent: *
+User-agent: Googlebot
+User-agent: Bingbot
+User-agent: OAI-SearchBot
+User-agent: ChatGPT-User
+User-agent: PerplexityBot
+User-agent: Perplexity-User
+User-agent: Claude-SearchBot
+User-agent: Claude-User
+User-agent: DuckAssistBot
+User-agent: Applebot
 Allow: /
 Disallow: /api/
-Disallow: /privacy-policy
-Disallow: /terms-of-service
 Disallow: /search?*
-
-# AI search, discovery, and user-requested assistant access.
-User-agent: OAI-SearchBot
-Allow: /
-
-User-agent: ChatGPT-User
-Allow: /
-
-User-agent: PerplexityBot
-Allow: /
-
-User-agent: Perplexity-User
-Allow: /
-
-User-agent: Bingbot
-Allow: /
-
-User-agent: Googlebot
-Allow: /
 
 # Do not use this website for AI model training or dataset scraping.
 User-agent: GPTBot

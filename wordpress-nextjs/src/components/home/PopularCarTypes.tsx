@@ -7,6 +7,7 @@ import {
 } from "@/lib/inventory/featured-arrivals";
 import VehicleCard from "@/components/vehicles/VehicleCard";
 import { warmVehicleVdpCachesForVehicles } from "@/lib/openai/warmVehicleVdpCache";
+import styles from "./PopularCarTypes.module.scss";
 
 export default async function PopularCarTypes() {
   let featured: DealerVehicle[] = [];
@@ -35,7 +36,7 @@ export default async function PopularCarTypes() {
             </h2>
           </div>
         </div>
-        <div className="row g-4">
+        <div className={`row g-4 ${styles.swipeRow}`}>
           {featured.map((v) => {
             const listing = dealerVehicleToListing(v);
             return (

@@ -72,3 +72,31 @@
   border-radius: 18px;
   background: linear-gradient(135deg, var(--cs-primary), var(--cs-accent));
 }
+
+/*
+  Phones: one-row topbar (rating left, call button right). See Header.tsx.
+*/
+@media (max-width: 575px) {
+  .cs-topbar__row {
+    flex-wrap: nowrap !important;
+  }
+
+  .cs-topbar__reviews {
+    min-width: 0;
+  }
+
+  .cs-topbar__review-line {
+    font-size: 0.75rem;
+    white-space: nowrap;
+  }
+
+  .cs-topbar__phone {
+    flex: 0 0 auto;
+    min-height: 36px;
+    padding: 0 0.75rem;
+    border: 1px solid rgba(255, 255, 255, 0.35);
+    border-radius: 999px;
+    font-weight: 600;
+    font-size: 0.85rem;
+  }
+}

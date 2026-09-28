@@ -31,6 +31,40 @@ export function trackVdpPhoneReveal(ctx: VdpAnalyticsContext): void {
   pushAnalyticsEvent("vdp_phone_reveal", vdpParams(ctx));
 }
 
+/**
+ * A tap on the dealer phone number. `vdp_phone_reveal` still exists because
+ * GTM triggers key off it, but the number is no longer masked, so this is the
+ * event that now counts a call intent.
+ */
+export function trackVdpPhoneClick(ctx: VdpAnalyticsContext): void {
+  const params = vdpParams(ctx);
+  pushAnalyticsEvent("vdp_phone_click", params);
+  // Keep the legacy event firing so existing GTM/Ads conversions do not go
+  // silent on the day the reveal button disappears.
+  pushAnalyticsEvent("vdp_phone_reveal", params);
+}
+
+export type VdpCtaName =
+  | "enquire"
+  | "test_drive"
+  | "call"
+  | "value_trade"
+  | "finance"
+  | "request_video";
+
+/** A tap on one of the primary action buttons (VDP block, sticky bar, card). */
+export function trackVdpCtaClick(
+  ctx: VdpAnalyticsContext,
+  cta: VdpCtaName,
+  placement: "vdp_primary" | "vdp_sticky" | "stock_card",
+): void {
+  pushAnalyticsEvent("vdp_cta_click", {
+    ...vdpParams(ctx),
+    cta_name: cta,
+    cta_placement: placement,
+  });
+}
+
 export function trackVdpFormSubmit(
   ctx: VdpAnalyticsContext,
   formType: "enquiry" | "test_drive",

@@ -46,3 +46,6 @@ next-env.d.ts
 *.swp
 *.swo
 *~
+
+# Sold-vehicle archive written at runtime (src/lib/inventory/sold-archive.ts)
+/data/

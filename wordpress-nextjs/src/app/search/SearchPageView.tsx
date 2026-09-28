@@ -32,6 +32,8 @@ import InventorySearchBar from "@/components/vehicles/InventorySearchBar";
 import InventoryPagination from "@/components/vehicles/InventoryPagination";
 import WpRenderedHtml from "@/components/cms/WpRenderedHtml";
 import InventorySrpVehicleGrid from "@/components/vehicles/InventorySrpVehicleGrid";
+import InventoryQuickChips from "@/components/vehicles/InventoryQuickChips";
+import { getQuickSearchChips } from "@/lib/inventory/quick-search-chips";
 import { warmVehicleVdpCachesForVehicles } from "@/lib/openai/warmVehicleVdpCache";
 import { InventorySearchUrlProvider } from "@/components/vehicles/InventorySearchUrlContext";
 import type { MakeModelPathResolution } from "@/lib/inventory/search-make-model-paths";
@@ -319,6 +321,8 @@ export default async function SearchPageView({
               <span className="inventory-breadcrumb-current">Search</span>
             )}
           </nav>
+
+          <InventoryQuickChips chips={getQuickSearchChips(all)} />
 
           <div className="inventory-srp-layout">
             <InventoryFiltersSidebar facets={facets} bounds={bounds} />

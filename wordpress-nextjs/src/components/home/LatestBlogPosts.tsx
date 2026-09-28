@@ -29,7 +29,7 @@ export default async function LatestBlogPosts() {
           </div>
         </div>
 
-        <div className="row">
+        <div className={`row ${styles.swipeRow}`}>
           {posts.map((post) => (
             <div
               key={post.id}

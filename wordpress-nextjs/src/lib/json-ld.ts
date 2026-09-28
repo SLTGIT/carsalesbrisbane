@@ -193,8 +193,9 @@ export function safeJsonLd(value: unknown): string {
   return JSON.stringify(value).replace(/</g, "\\u003c");
 }
 
+// Same relationship wording as the site copy.
 export const ORGANIZATION_DESCRIPTION =
-  "Car Sales Brisbane is an online sales channel of Statewide Auto Group. We specialize in vehicle sourcing, onsite finance, and Queensland-wide delivery.";
+  "Car Sales Brisbane, proudly supported by Statewide Auto Group, is an online used-car sales channel for Brisbane and Queensland buyers, specialising in vehicle sourcing, finance and Queensland-wide delivery.";
 
 export const WEBSITE_DESCRIPTION =
   "Car Sales Brisbane is a leading provider of used cars in Australia. We offer a wide range of used cars for sale in Australia.";
@@ -263,6 +264,30 @@ export const ORG_POSTAL_ADDRESS = {
   addressCountry: "AU",
 } as const;
 
+/**
+ * Statewide Auto Group, the dealership Car Sales Brisbane is an online sales
+ * channel of. Referenced from both Car Sales Brisbane entities so search
+ * engines and AI assistants can connect the two brands — the site describes the
+ * relationship ("proudly supported by Statewide Auto Group"), and the
+ * structured data now says the same thing instead of naming Car Sales
+ * Brisbane as its own parent.
+ */
+const STATEWIDE_AUTO_GROUP_REF = {
+  "@type": "AutoDealer",
+  "@id": "https://statewideautogroup.com.au/#organization",
+  name: "Statewide Auto Group",
+  url: "https://statewideautogroup.com.au",
+} as const;
+
+/** Areas the business sells into and delivers to. */
+const AREA_SERVED = [
+  { "@type": "City", name: "Brisbane" },
+  { "@type": "City", name: "Ormiston" },
+  { "@type": "City", name: "Capalaba" },
+  { "@type": "City", name: "Redland City" },
+  { "@type": "State", name: "Queensland" },
+];
+
 export function organizationJsonLd(origin: string) {
   const siteOrigin = upgradeHttpToHttpsUrl(origin);
   const logoUrl = upgradeHttpToHttpsUrl(
@@ -275,10 +300,18 @@ export function organizationJsonLd(origin: string) {
     url: siteOrigin,
     logo: { "@type": "ImageObject", url: logoUrl },
     description: ORGANIZATION_DESCRIPTION,
-    telephone: "+61418908870",
+    telephone: "+61733903057",
     email: "sales@carsalesbrisbane.com.au",
     address: { ...ORG_POSTAL_ADDRESS },
     sameAs: ORG_SAME_AS.map((u) => urlWithoutQueryForSchema(u)),
+    parentOrganization: STATEWIDE_AUTO_GROUP_REF,
+    areaServed: AREA_SERVED,
+    // Queensland motor dealer licence, as printed in the site footer.
+    identifier: {
+      "@type": "PropertyValue",
+      propertyID: "QLD Motor Dealer Licence",
+      value: "4065904",
+    },
   };
 }
 
@@ -334,13 +367,11 @@ export function autoDealerJsonLd(origin: string) {
       `${siteOrigin}/assets/images/carsalesbrisbane_logo.png`,
     ),
     url: siteOrigin,
-    telephone: "+61418908870",
+    telephone: "+61733903057",
     email: "sales@carsalesbrisbane.com.au",
     address: { ...ORG_POSTAL_ADDRESS },
-    parentOrganization: {
-      "@type": "Organization",
-      name: "Car Sales Brisbane",
-    },
+    parentOrganization: STATEWIDE_AUTO_GROUP_REF,
+    areaServed: AREA_SERVED,
     openingHoursSpecification: dealerOpeningHours,
   };
 }
@@ -865,7 +896,7 @@ export function vehicleJsonLdFromInventory(
   ) as Record<string, unknown>;
 }
 
-/** AU mobile/landline to E.164 for JSON-LD `telephone` (e.g. +61418908870). */
+/** AU mobile/landline to E.164 for JSON-LD `telephone` (e.g. +61733903057). */
 export function dealerPhoneToE164Au(raw: string): string {
   const t = (raw || "").trim();
   const d = t.replace(/\D/g, "");
@@ -873,7 +904,7 @@ export function dealerPhoneToE164Au(raw: string): string {
   if (d.startsWith("61") && d.length >= 11) return `+${d}`;
   if (d.startsWith("0") && d.length >= 9) return `+61${d.slice(1)}`;
   if (d.length >= 9) return `+${d}`;
-  return "+61418908870";
+  return "+61733903057";
 }
 
 function driveWheelPlainForCarSchema(drive: string): string | undefined {

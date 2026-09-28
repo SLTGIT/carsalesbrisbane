@@ -14,6 +14,8 @@ type Slide = {
   lead: React.ReactNode;
   primaryCta: { label: string; href: string };
   secondaryCta?: { label: string; href: string };
+  /** Optional third action, styled like the secondary one. */
+  tertiaryCta?: { label: string; href: string };
   imageSrc: string;
   imageAlt: string;
   /** object-position for cover crop (e.g. show lower part of asset) */
@@ -30,14 +32,17 @@ const SLIDES: Slide[] = [
     lead: (
       <>
         Browse premium used 4x4s, SUVs, and commercial vehicles from our
-        Ormiston yard. $0 deposit finance options and statewide delivery from
-        Brisbane to Cairns—so the right car is never out of reach.
+        Ormiston yard. $0 deposit finance options for approved applicants and
+        statewide delivery from Brisbane to Cairns—so the right car is never
+        out of reach.
       </>
     ),
-    // Same destination as before — the label leads with the action a buyer is
-    // ready to take. Slide 2 still carries a "Browse All Vehicles" link.
-    primaryCta: { label: "Book a Test Drive", href: "/search/car-sales-in-brisbane" },
-    secondaryCta: { label: "Check Finance Eligibility", href: "/finance-centre" },
+    // The primary button read "Book a Test Drive" but linked to the stock
+    // search — it promised a booking and delivered a results page. The three
+    // actions are now the stock / finance / trade journeys the brief names.
+    primaryCta: { label: "View stock", href: "/search/car-sales-in-brisbane" },
+    secondaryCta: { label: "Check finance eligibility", href: "/finance-centre" },
+    tertiaryCta: { label: "Sell or trade", href: "/sell-my-car" },
     imageSrc:
       "https://admin.carsalesbrisbane.com.au/wp-content/uploads/2026/05/slider-img1.webp",
     imageAlt:
@@ -49,7 +54,9 @@ const SLIDES: Slide[] = [
     id: "five-dollar",
     indicatorLabel: "Finance from $5 per day",
     title: "Cars From $5 Per Day On Approved Finance",
-    subtitle: "Low rates · Past problems, no problem · ABN welcome",
+    // "Past problems, no problem" read as a promise of approval regardless of
+    // credit history — a credit representation only the lender can make.
+    subtitle: "Competitive rates · Past credit issues considered · ABN welcome",
     lead: (
       <>
         With over three decades of experience, our team packages repayments to
@@ -74,12 +81,12 @@ const SLIDES: Slide[] = [
     lead: (
       <>
         
-        Partnered with Statewide Auto Group — quality used cars &amp; 4x4&apos;s
-        in Brisbane &amp; Redlands. Wide range, low finance rates, ABN welcome.
+        Car Sales Brisbane, proudly supported by Statewide Auto Group — quality
+        used cars &amp; 4x4&apos;s in Brisbane &amp; Redlands. Wide range, low finance rates, ABN welcome.
         Friendly team, 30+ years — here to help you buy or sell with confidence.
       </>
     ),
-    primaryCta: { label: "Quick and easy get finance", href: "/finance-centre" },
+    primaryCta: { label: "Get finance quickly", href: "/finance-centre" },
     secondaryCta: { label: "About us", href: "/about-us" },
     imageSrc:
       "https://admin.carsalesbrisbane.com.au/wp-content/uploads/2026/05/slider-img3.webp",
@@ -155,6 +162,14 @@ export default function HomeBanner() {
                     href={slide.secondaryCta.href}
                   >
                     {slide.secondaryCta.label}
+                  </a>
+                ) : null}
+                {slide.tertiaryCta ? (
+                  <a
+                    className="btn btn-outline-primary btn-lg cs-pill cs-cta-strong"
+                    href={slide.tertiaryCta.href}
+                  >
+                    {slide.tertiaryCta.label}
                   </a>
                 ) : null}
               </div>
