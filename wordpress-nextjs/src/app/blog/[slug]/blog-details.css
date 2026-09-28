@@ -2,6 +2,20 @@
   background: #f3f7fb;
 
 }
+.cs-page-hero h1 {
+  font-size: 2rem !important;
+}
+.cs-page-hero p {
+  font-size: 1.15rem !important;
+}
+@media screen and (max-width: 768px) {
+  .cs-page-hero h1 {
+    font-size: 1.75rem !important;
+  }
+  .cs-page-hero p {
+    font-size: 1rem !important;
+  }
+}
 .cs-card {
   border: 1px solid var(--cs-line);
   border-radius: 1.5rem;
