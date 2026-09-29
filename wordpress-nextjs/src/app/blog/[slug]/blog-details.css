@@ -56,10 +56,6 @@
   color: var(--cs-muted);
   line-height: 1.75;
 }
-.cs-prose a {
-  color: #ffffff;
-  text-decoration: none;
-}
 .cs-answer-box,
 .cs-cta-box,
 .cs-faq-item {
@@ -149,6 +145,13 @@
 /* Blog article links only — this file is imported solely by blog/[slug]/page.tsx,
    and the .cms-rendered-content prefix keeps it inside the article body. */
 .cms-rendered-content .cs-prose a {
-  color: #ffffff !important;
-  text-decoration: none;
+  color: var(--cs-primary, #2a6d75) !important;
+  text-decoration: underline;
+  text-decoration-color: rgba(42, 109, 117, 0.4);
+  text-underline-offset: 2px;
+  font-weight: 600;
+}
+.cms-rendered-content .cs-prose a:hover {
+  color: var(--cs-primary-dark, #1f5c64) !important;
+  text-decoration-color: currentColor;
 }
