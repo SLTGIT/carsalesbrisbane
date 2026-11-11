@@ -1,5 +1,5 @@
 import { NextResponse } from "next/server";
-import { fetchDealerInventory } from "@/lib/dealer-solutions/fetch-inventory";
+import { fetchDealerInventory, isBike } from "@/lib/dealer-solutions/fetch-inventory";
 import { countByField } from "@/lib/inventory/query";
 
 export type InventoryMakeRow = {
@@ -10,10 +10,11 @@ export type InventoryMakeRow = {
 
 /**
  * GET /api/inventory/makes — distinct makes from the dealer feed, sorted by count (desc).
+ * Only the home brands slider uses this, so motorbikes are left out.
  */
 export async function GET() {
   try {
-    const vehicles = await fetchDealerInventory();
+    const vehicles = (await fetchDealerInventory()).filter((v) => !isBike(v));
     const map = countByField(vehicles, "Make");
     const brands: InventoryMakeRow[] = [...map.entries()]
       .map(([name, count]) => ({

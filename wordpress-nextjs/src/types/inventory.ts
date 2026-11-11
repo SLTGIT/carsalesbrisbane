@@ -69,6 +69,15 @@ export interface DealerVehicle {
   Rego?: string;
   RegistrationNumber?: string;
   RegistrationPlate?: string;
+
+  /**
+   * When the dealer last updated the stock record — drives the "New Arrival"
+   * badge and sort. `unknown` until the feed's type for it is verified; read
+   * it through `parseLastUpdatedMs`.
+   */
+  LastUpdated?: unknown;
+  /** Date the dealer received the vehicle into stock ("2026-09-21"). */
+  ReceiptDate?: unknown;
 }
 
 export interface DealerInventoryFeed {
@@ -130,6 +139,18 @@ export interface VehicleListing {
   body_colour: string;
   /** Feed TrimColour — shown in card headline after trim when present. */
   trim_colour: string;
+  /** Feed last-updated timestamp as supplied, e.g. "2026-09-03T15:45:37". */
+  last_updated: string | null;
+  /**
+   * Whether the vehicle's arrival date (feed ReceiptDate, else LastUpdated)
+   * fell inside the New Arrival window when this
+   * listing was built. Decided once, on the server, because the card that
+   * reads it is re-rendered on the client during hydration — recomputing it
+   * there against a fresh `Date.now()` lets a listing sitting on the window
+   * boundary badge on one pass and not the other. That is a hydration
+   * mismatch, not a stale badge.
+   */
+  is_new_arrival: boolean;
 }
 
 export interface FilterOptionCount {
@@ -168,12 +189,15 @@ export interface InventoryFilterState {
   maxPrice: number | null;
   minYear: number | null;
   maxYear: number | null;
+  /** At least this many seats (e.g. 7 for the "7 seats" quick search). */
+  minSeats: number | null;
   sort: InventorySort;
   view: "grid" | "list";
   page: number;
 }
 
 export type InventorySort =
+  | "new-arrival"
   | "best"
   | "price-asc"
   | "price-desc"
@@ -182,4 +206,4 @@ export type InventorySort =
   | "odometer-asc";
 
 /** Default SRP sort; omitted from listing URLs when unchanged. */
-export const DEFAULT_INVENTORY_SORT: InventorySort = "year-desc";
+export const DEFAULT_INVENTORY_SORT: InventorySort = "new-arrival";

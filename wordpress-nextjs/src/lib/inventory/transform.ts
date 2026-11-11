@@ -1,5 +1,6 @@
 import type { DealerVehicle, VehicleListing } from "@/types/inventory";
 import { buildVehicleSlug } from "./slug";
+import { isNewArrival } from "./new-arrival";
 import {
   vehicleDisplayFuelType,
   vehicleDisplayTransmission,
@@ -131,6 +132,11 @@ export function dealerVehicleToListing(v: DealerVehicle): VehicleListing {
     year: v.ManufactureYear,
     body_colour: v.BodyColour?.trim() || "",
     trim_colour: v.TrimColour?.trim() || "",
+    last_updated:
+      v.LastUpdated == null ? null : String(v.LastUpdated).trim() || null,
+    // Resolved here, on the server, so every renderer of this listing agrees.
+    // Arrival in stock (ReceiptDate), not the last edit (LastUpdated).
+    is_new_arrival: isNewArrival(v.ReceiptDate ?? v.LastUpdated),
   };
 }
 

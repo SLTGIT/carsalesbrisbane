@@ -1,14 +1,20 @@
 import type { VehicleListing } from "@/types/inventory";
 import {
   vehicleCardHeadlineYearMakeModelTrim,
-  vehicleCardListPrimaryHeadline,
-  vehicleCardListSubtitleLine,
+  vehicleCardPrimaryLine,
+  vehicleCardTrimLine,
   vehicleCardFeatureTags,
 } from "@/lib/inventory/card-display";
 import { buildListingSpecRows } from "@/lib/inventory/vehicle-specs";
 import Link from "next/link";
 import Image from "next/image";
 import VehicleCardSave from "./VehicleCardSave";
+import VehicleCardActions from "./VehicleCardActions";
+
+// Same number the vehicle page and header use for Car Sales Brisbane.
+const DEALER_TEL = (
+  process.env.NEXT_PUBLIC_DEALER_PHONE || "07 3390 3057"
+).replace(/\s/g, "");
 
 interface VehicleCardProps {
   listing: VehicleListing;
@@ -16,6 +22,8 @@ interface VehicleCardProps {
   /** Hide odometer value in specs (still reserves a column with "—" when false skip). */
   hideOdometer?: boolean;
   className?: string;
+  /** SRP results only — homepage and carousels reuse the card without it. */
+  showNewArrivalBadge?: boolean;
 }
 
 export default function VehicleCard({
@@ -23,51 +31,62 @@ export default function VehicleCard({
   view = "grid",
   hideOdometer = false,
   className,
+  showNewArrivalBadge = false,
 }: VehicleCardProps) {
   const href = `/cars/${listing.slug}`;
+  // Both views split the name over two lines — the car, then its variant. The
+  // image alt keeps the whole thing on one line, where a break means nothing.
   const imageAlt = vehicleCardHeadlineYearMakeModelTrim(listing);
+  const primary = vehicleCardPrimaryLine(listing);
+  const subtitle = vehicleCardTrimLine(listing);
   const isUsed = listing.condition.trim().toLowerCase() === "used";
+  // Body type and drive type read as pills under the list card. The grid card
+  // has no pill row, so there they stay ordinary spec rows.
+  const featureTags = view === "list" ? vehicleCardFeatureTags(listing) : [];
+  const taggedValues = new Set(
+    featureTags.map((tag) => tag.trim().toLowerCase()),
+  );
   // Every spec the feed actually carries, in scan order. Rows without a value
   // are already dropped, so a shorter grid means a sparser export — not a bug.
+  // Anything already shown as a pill is dropped so no value appears twice.
   const specRows = buildListingSpecRows(listing).filter(
-    (row) => !(hideOdometer && row.key === "odometer"),
+    (row) =>
+      !(hideOdometer && row.key === "odometer") &&
+      !taggedValues.has(row.value.trim().toLowerCase()),
   );
-  const featureTags = vehicleCardFeatureTags(listing);
 
-  /**
-   * Rendered as a definition list so assistive tech reads
-   * "Transmission: Automatic" rather than an unexplained value.
-   */
-  const renderSpecs = (variant: "grid" | "list") => {
-    if (!specRows.length) return null;
-    const isList = variant === "list";
-    return (
-      <dl
-        className={`inventory-card-specs${isList ? " inventory-card-specs--list" : ""}`}
-        aria-label="Key specifications"
-      >
-        {specRows.map((row) => (
-          <div
-            key={row.key}
-            className={`inventory-card-spec${isList ? " inventory-card-spec--list" : ""}`}
-          >
-            <dt className="visually-hidden">{row.label}</dt>
-            <dd className="inventory-card-spec-body">
-              <i
-                className={`bi bi-${row.icon} inventory-card-spec-icon${
-                  isList ? " inventory-card-spec-icon--list" : ""
-                }`}
-                aria-hidden
-              />
-              <span className="inventory-card-spec-text inventory-card-spec-value">
-                {row.value}
-              </span>
-            </dd>
-          </div>
-        ))}
-      </dl>
-    );
-  };
+  // Two-column list. Icons carry the meaning visually; each row keeps a hidden
+  // label so the grid is not a column of unexplained values to a screen reader.
+  const specGrid = specRows.length ? (
+    <ul className="inventory-card-spec-grid" aria-label="Key specifications">
+      {specRows.map((row) => (
+        <li key={row.key} className="inventory-card-spec-row">
+          <i
+            className={`bi bi-${row.icon} inventory-card-spec-row__icon`}
+            aria-hidden
+          />
+          <span className="visually-hidden">{`${row.label}: `}</span>
+          <span className="inventory-card-spec-row__value" title={row.value}>
+            {row.value}
+          </span>
+        </li>
+      ))}
+    </ul>
+  ) : null;
+
+  // Enquire / Call / Book a test drive on the card itself, so browsing can
+  // turn into a lead without a page load and a scroll first.
+  const cardActions = (
+    <VehicleCardActions
+      href={href}
+      telHref={`tel:${DEALER_TEL}`}
+      stockNumber={listing.stock_number ?? ""}
+      make={listing.make ?? ""}
+      model={listing.model ?? ""}
+      year={listing.year ?? ""}
+      slug={listing.slug}
+    />
+  );
 
   const articleClass = [
     "inventory-vehicle-card",
@@ -80,6 +99,32 @@ export default function VehicleCard({
   const usedBadge = isUsed ? (
     <span className="inventory-card-used-badge">Used</span>
   ) : null;
+
+  const newArrivalBadge =
+    showNewArrivalBadge && listing.is_new_arrival ? (
+      <span className="inventory-card-new-arrival-badge">
+        <i className="bi bi-stars" aria-hidden />
+        New Arrival
+      </span>
+    ) : null;
+
+  const badgeRow =
+    usedBadge || newArrivalBadge ? (
+      <div className="inventory-card-badge-row">
+        {usedBadge}
+        {newArrivalBadge}
+      </div>
+    ) : null;
+
+  // Only an advertised price excludes government charges — a drive-away price
+  // already includes them, so it must not carry this qualifier. Shared by both
+  // views so the disclosure cannot appear on one card style and not the other.
+  const egcNote =
+    listing.formatted_price && !listing.show_drive_away ? (
+      <span className="inventory-card-price-egc-note">
+        EGC - Excluding Government Charges
+      </span>
+    ) : null;
 
   const imageWrap = (
     <div className="inventory-card-image-wrap">
@@ -107,15 +152,12 @@ export default function VehicleCard({
   );
 
   if (view === "list") {
-    const primary = vehicleCardListPrimaryHeadline(listing);
-    const subtitle = vehicleCardListSubtitleLine(listing);
-
     return (
       <article className={articleClass}>
         {imageWrap}
         <div className="inventory-card-list-main">
           <div className="inventory-card-title-block inventory-card-title-block--list">
-            {usedBadge}
+            {badgeRow}
             <Link
               href={href}
               className="inventory-card-headline-link inventory-card-headline-link--list"
@@ -123,20 +165,20 @@ export default function VehicleCard({
               <h3 className="inventory-card-headline inventory-card-headline--list">
                 {primary}
               </h3>
-              {/* {subtitle ? (
+              {subtitle ? (
                 <p className="inventory-card-subtitle inventory-card-subtitle--list">
                   {subtitle}
                 </p>
-              ) : null} */}
+              ) : null}
             </Link>
           </div>
 
-          {renderSpecs("list")}
+          {specGrid}
 
           {featureTags.length > 0 ? (
             <ul className="inventory-card-tags" aria-label="Highlights">
               {featureTags.map((tag) => (
-                <li key={tag} className="inventory-card-tag fs-6 px-3 py-1">
+                <li key={tag} className="inventory-card-tag">
                   {tag}
                 </li>
               ))}
@@ -162,7 +204,7 @@ export default function VehicleCard({
                 </span>
               ) : (
                 <span className="inventory-card-price-muted inventory-card-price-muted--aside">
-                  Price on request
+                  Enquire For Price
                 </span>
               )}
               {listing.show_drive_away && listing.drive_away_price ? (
@@ -170,8 +212,10 @@ export default function VehicleCard({
                   {listing.drive_away_price} drive away
                 </span>
               ) : null}
+              {egcNote}
             </div>
           </div>
+          {cardActions}
           <Link href="/finance-centre" className="inventory-card-finance-link">
             Calculate financing
           </Link>
@@ -190,23 +234,24 @@ export default function VehicleCard({
     );
   }
 
-  const headline = imageAlt;
-
   return (
     <article className={articleClass}>
       {imageWrap}
       <div className="inventory-card-body">
         <div className="inventory-card-main">
           <div className="inventory-card-title-block">
-            {usedBadge}
+            {badgeRow}
             <Link href={href} className="inventory-card-headline-link">
-              <h3 className="inventory-card-headline">{headline}</h3>
+              <h3 className="inventory-card-headline">{primary}</h3>
+              {subtitle ? (
+                <p className="inventory-card-subtitle">{subtitle}</p>
+              ) : null}
             </Link>
           </div>
 
           <hr className="inventory-card-rule" />
 
-          {renderSpecs("grid")}
+          {specGrid}
 
           <hr className="inventory-card-rule" />
         </div>
@@ -225,7 +270,7 @@ export default function VehicleCard({
                 </span>
               ) : (
                 <span className="inventory-card-price-muted">
-                  Price on request
+                  Enquire For Price
                 </span>
               )}
               {listing.show_drive_away && listing.drive_away_price ? (
@@ -233,6 +278,7 @@ export default function VehicleCard({
                   {listing.drive_away_price} drive away
                 </span>
               ) : null}
+              {egcNote}
             </div>
             <Link href={href} className="inventory-card-detail-btn">
               View details
@@ -242,6 +288,7 @@ export default function VehicleCard({
               />
             </Link>
           </div>
+          {cardActions}
         </div>
       </div>
     </article>

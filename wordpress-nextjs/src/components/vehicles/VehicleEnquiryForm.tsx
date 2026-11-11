@@ -4,6 +4,7 @@ import FormSubmissionModal from "@/components/forms/FormSubmissionModal";
 import { trackVdpFormSubmit } from "@/lib/analytics/vdp";
 import { submitLead } from "@/lib/leads/submit-lead-client";
 import RecaptchaField from "@/components/forms/RecaptchaField";
+import FormPrivacyNote from "@/components/forms/FormPrivacyNote";
 import {
   digitsOnly,
   isValidEmail,
@@ -49,6 +50,16 @@ export interface VehicleEnquiryFormProps {
   /** Show a Close control after successful submit (e.g. inside a modal). */
   showCloseOnSuccess?: boolean;
   onSuccessClose?: () => void;
+  /**
+   * Lead type recorded on the email and the WordPress record. Defaults to a
+   * general vehicle enquiry; the video-walkaround request overrides it so the
+   * team can tell the two apart without reading the message.
+   */
+  formType?: string;
+  /** Pre-filled comment, used where the request itself is the message. */
+  initialComments?: string;
+  /** Submit button text. */
+  submitLabel?: string;
 }
 
 export default function VehicleEnquiryForm({
@@ -56,6 +67,9 @@ export default function VehicleEnquiryForm({
   idPrefix,
   showCloseOnSuccess,
   onSuccessClose,
+  formType = "Used Vehicle Enquiry",
+  initialComments = "",
+  submitLabel = "Send enquiry",
 }: VehicleEnquiryFormProps) {
   const defaultMessage = useMemo(
     () =>
@@ -81,7 +95,7 @@ export default function VehicleEnquiryForm({
   const [lastName, setLastName] = useState("");
   const [email, setEmail] = useState("");
   const [phone, setPhone] = useState("");
-  const [comments, setComments] = useState(defaultMessage);
+  const [comments, setComments] = useState(initialComments || defaultMessage);
   const [dealership, setDealership] = useState("");
   const [similarStock, setSimilarStock] = useState(false);
 
@@ -98,10 +112,11 @@ export default function VehicleEnquiryForm({
     setLastName("");
     setEmail("");
     setPhone("");
-    setComments(defaultMessage);
+    // A video request resets to its own message, not the general enquiry one.
+    setComments(initialComments || defaultMessage);
     setDealership("");
     setSimilarStock(false);
-  }, [defaultMessage]);
+  }, [defaultMessage, initialComments]);
 
   const handleSubmit = async (e: FormEvent<HTMLFormElement>) => {
     e.preventDefault();
@@ -156,7 +171,7 @@ export default function VehicleEnquiryForm({
         phone: phoneDigits,
         email: email.trim(),
         message,
-        form_type: "Used Vehicle Enquiry",
+        form_type: formType,
         budget: "",
         dob: "",
         driverLicence: "",
@@ -422,10 +437,11 @@ export default function VehicleEnquiryForm({
                 Sending…
               </>
             ) : (
-              "Send enquiry"
+              submitLabel
             )}
           </button>
         </div>
+        <FormPrivacyNote purpose="respond to your enquiry about this vehicle" />
       </form>
 
       <FormSubmissionModal

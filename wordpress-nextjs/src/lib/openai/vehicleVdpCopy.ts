@@ -166,6 +166,39 @@ export function ensureVehicleVdpSeoFields(
 }
 
 /** Prefer listing data when the model echoes prompt placeholders or omits the year. */
+/**
+ * Swaps the fuel segment of a hero badge for the recovered powertrain.
+ *
+ * The badge can come from cached model output generated before the powertrain
+ * was recovered, so it can still read "Petrol" for the Corolla Hybrid while the
+ * cards say "Hybrid". The badge is "·"-separated, so the fuel segment is
+ * replaced wholesale rather than by patching words inside it.
+ */
+function applyRecoveredPowertrainToBadge(
+  badge: string,
+  snapshot: VehicleVdpSnapshot,
+): string {
+  const recovered = recoverPowertrain({
+    feedFuelType: snapshot.fuelType,
+    name: snapshot.description || snapshot.title,
+    comments: snapshot.comments,
+  });
+  if (!recovered) return badge;
+
+  const parts = badge.split("·").map((p) => p.trim()).filter(Boolean);
+  if (parts.some((p) => p.toLowerCase() === recovered.toLowerCase())) {
+    return parts.join(" · ");
+  }
+
+  const fuelish =
+    /\b(?:petrol|diesel|unleaded|ulp|gasoline|hybrid|electric|ev|lpg)\b/i;
+  const idx = parts.findIndex((p) => fuelish.test(p));
+  if (idx >= 0) parts[idx] = recovered;
+  else parts.push(recovered);
+
+  return parts.join(" · ");
+}
+
 export function buildListingHeroBadge(
   aiBadge: string,
   snapshot: VehicleVdpSnapshot,
@@ -175,9 +208,14 @@ export function buildListingHeroBadge(
     return formatHeroBadgeFromSnapshot(snapshot);
   }
   const year = String(snapshot.year);
-  if (/^\d{4}\b/.test(cleaned)) return normalizeHeroBadgeFuelPhrases(cleaned);
-  if (cleaned.includes(year)) return normalizeHeroBadgeFuelPhrases(cleaned);
-  return normalizeHeroBadgeFuelPhrases(`${year} · ${cleaned}`);
+  const withYear =
+    /^\d{4}\b/.test(cleaned) || cleaned.includes(year)
+      ? cleaned
+      : `${year} · ${cleaned}`;
+  return applyRecoveredPowertrainToBadge(
+    normalizeHeroBadgeFuelPhrases(withYear),
+    snapshot,
+  );
 }
 
 function stripTypicalGenerationPreamble(value: string): string {

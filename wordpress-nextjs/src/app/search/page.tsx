@@ -50,7 +50,8 @@ export default async function SearchPage({ searchParams }: SearchPageProps) {
   const raw = await searchParams;
   const filters = parseInventorySearchParams(raw);
   const rendered = page.content?.rendered?.trim();
-
+  console.log(filters);
+  
   const acfSeo = getAcfSeoCopy(page);
   const headline = stripHtml(page.title.rendered);
   const excerpt = stripHtml(page.excerpt?.rendered || "");

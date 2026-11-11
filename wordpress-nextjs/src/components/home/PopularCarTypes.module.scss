@@ -91,3 +91,30 @@
         }
     }
 }
+
+/*
+  Phones: a sideways swipe row instead of a vertical stack, with the next card
+  peeking in. Every card stays on the page (and in the HTML); the section just
+  costs one card of height instead of several.
+*/
+@media (max-width: 767px) {
+  .swipeRow {
+    flex-wrap: nowrap;
+    overflow-x: auto;
+    scroll-snap-type: x mandatory;
+    overscroll-behavior-x: contain;
+    padding-bottom: 0.5rem;
+    scrollbar-width: none;
+
+    &::-webkit-scrollbar {
+      display: none;
+    }
+
+    > * {
+      flex: 0 0 86%;
+      max-width: 86%;
+      margin-bottom: 0 !important;
+      scroll-snap-align: start;
+    }
+  }
+}

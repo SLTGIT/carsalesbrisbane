@@ -70,8 +70,8 @@ cp .env.example .env.local
 Edit `.env.local` and add your WordPress site URL:
 
 ```env
-NEXT_PUBLIC_WORDPRESS_API_URL=https://your-wordpress-site.com/wp-json/wp/v2
-WORDPRESS_API_URL=https://your-wordpress-site.com/wp-json/wp/v2
+NEXT_PUBLIC_WORDPRESS_API_URL=https://your-wordpress-site.com/wp-json
+WORDPRESS_API_URL=https://your-wordpress-site.com/wp-json
 
 # Optional: WordPress Authentication (if needed for private content)
 WORDPRESS_AUTH_USERNAME=

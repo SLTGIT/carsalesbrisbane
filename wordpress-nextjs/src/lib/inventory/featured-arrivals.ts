@@ -1,4 +1,5 @@
 import type { DealerVehicle } from "@/types/inventory";
+import { isBike } from "@/lib/dealer-solutions/fetch-inventory";
 import { priceNum } from "./query";
 
 const DEFAULT_LIMIT = 4;
@@ -12,7 +13,7 @@ export function pickFeaturedArrivalVehicles(
   limit = DEFAULT_LIMIT
 ): DealerVehicle[] {
   return [...vehicles]
-    .filter((v) => priceNum(v) > 0)
+    .filter((v) => priceNum(v) > 0 && !isBike(v))
     .sort((a, b) => {
       const ap = a.Photos?.[0]?.PhotoUrl?.trim() ? 1 : 0;
       const bp = b.Photos?.[0]?.PhotoUrl?.trim() ? 1 : 0;

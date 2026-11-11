@@ -1,6 +1,7 @@
 import Link from "next/link";
 import Image from "next/image";
 import type { WPPost } from "@/types/wordpress";
+import { stripHtml } from "@/lib/json-ld";
 import styles from "./BlogCard.module.scss";
 
 interface BlogCardProps {
@@ -8,10 +9,6 @@ interface BlogCardProps {
   /** Use `2` on /blog listing (after page h1); default `3` when nested under a section h2. */
   titleHeadingLevel?: 2 | 3;
   priority?: boolean;
-}
-
-function stripTags(html: string): string {
-  return html.replace(/<[^>]*>/g, "").replace(/\s+/g, " ").trim();
 }
 
 export default function BlogCard({
@@ -24,7 +21,7 @@ export default function BlogCard({
   const featuredImage =
     post._embedded?.["wp:featuredmedia"]?.[0]?.source_url;
   const href = `/blog/${post.slug}`;
-  const plainTitle = stripTags(post.title.rendered);
+  const plainTitle = stripHtml(post.title.rendered);
   const imgAlt = plainTitle ? `${plainTitle} — article` : "Blog article";
 
   return (

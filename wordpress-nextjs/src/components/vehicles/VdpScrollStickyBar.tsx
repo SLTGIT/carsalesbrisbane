@@ -14,6 +14,13 @@ function readSiteHeaderOffsetPx(): number {
 
 export interface VdpScrollStickyBarProps {
   headline: string;
+  /**
+   * Same two-line split the vehicle card and the h1 use: "2016 Toyota
+   * Landcruiser Prado" on top, "GXL GDJ150R" underneath. Falls back to the
+   * single-line headline when the split is unavailable.
+   */
+  titlePrimary?: string;
+  titleVariant?: string;
   priceMain: string;
   priceCaption: string;
   vehicleImage?: string;
@@ -22,6 +29,8 @@ export interface VdpScrollStickyBarProps {
 
 export default function VdpScrollStickyBar({
   headline,
+  titlePrimary = "",
+  titleVariant = "",
   priceMain,
   priceCaption,
   vehicleImage,
@@ -92,7 +101,12 @@ export default function VdpScrollStickyBar({
           </div>
         ) : null}
         <div className="vdp-ref-sticky-bar__title min-w-0 flex-grow-1">
-          <p className="vdp-ref-sticky-bar__name mb-0 fw-bold">{headline}</p>
+          <p className="vdp-ref-sticky-bar__name mb-0 fw-bold">
+            {titlePrimary || headline}
+          </p>
+          {titleVariant ? (
+            <p className="vdp-ref-sticky-bar__variant mb-0">{titleVariant}</p>
+          ) : null}
         </div>
         <div className="vdp-ref-sticky-bar__price flex-shrink-0">
           <div className="vdp-ref-sticky-bar__amount fw-bold">{priceMain || "—"}</div>

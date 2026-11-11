@@ -135,6 +135,20 @@ function isSeriesCode(token: string): boolean {
   return digits >= 2 && letters >= 1;
 }
 
+/**
+ * Removes specification tail noise, preserving powertrain words.
+ *
+ * Compound spec phrases are stripped BEFORE exact feed values, because removing
+ * the DriveType "AWD" first would split "i-ACTIV AWD" and orphan "i-ACTIV".
+ */
+function stripSpecTail(text: string, fieldValues: string[] = []): string {
+  const { text: guarded, tokens } = protectPowertrain(text);
+  let cleaned = guarded;
+  for (const re of NOISE_PATTERNS) cleaned = cleaned.replace(re, " ");
+  for (const v of fieldValues) cleaned = removePhrase(cleaned, v);
+  return tidy(restorePowertrain(cleaned, tokens));
+}
+
 function parseFromDescription(ctx: VehicleNameContext): VehicleNameParts {
   let s = tidy(ctx.description ?? "");
   if (!s) return { badge: "", series: "" };
@@ -160,13 +174,7 @@ function parseFromDescription(ctx: VehicleNameContext): VehicleNameParts {
     .filter(Boolean)
     .sort((a, b) => b.length - a.length);
 
-  // Compound spec phrases are stripped BEFORE exact feed values. Removing the
-  // DriveType "AWD" first would split "i-ACTIV AWD" and orphan "i-ACTIV".
-  const { text, tokens } = protectPowertrain(s);
-  let cleaned = text;
-  for (const re of NOISE_PATTERNS) cleaned = cleaned.replace(re, " ");
-  for (const v of fieldValues) cleaned = removePhrase(cleaned, v);
-  cleaned = tidy(restorePowertrain(cleaned, tokens));
+  const cleaned = stripSpecTail(s, fieldValues);
 
   // Dealer Solutions places the series code immediately after the model, so
   // only a leading code is lifted out. Anything further along stays in feed
@@ -187,7 +195,10 @@ function parseFromDescription(ctx: VehicleNameContext): VehicleNameParts {
 export function extractVehicleNameParts(
   ctx: VehicleNameContext,
 ): VehicleNameParts {
-  const feedBadge = (ctx.feedBadge ?? "").trim();
+  // The feed's own badge still carries spec tail — Dealer Solutions supplies
+  // "Ascent Sport E-CVT Hybrid", where E-CVT is the transaxle, not the badge.
+  // Clean it the same way as a parsed badge so "Hybrid" survives and E-CVT does not.
+  const feedBadge = stripSpecTail((ctx.feedBadge ?? "").trim());
   const feedSeries = (ctx.feedSeries ?? "").trim();
   if (feedBadge && feedSeries) return { badge: feedBadge, series: feedSeries };
 

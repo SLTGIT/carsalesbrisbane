@@ -1,6 +1,12 @@
 import type { DealerInventoryFeed, DealerVehicle } from "@/types/inventory";
+import { recordInventorySnapshot } from "@/lib/inventory/sold-archive";
 
 const DEFAULT_REVALIDATE_SECONDS = 300;
+
+/** Dealer Solutions `Type` code for motorbikes — hidden on the home page, kept on the SRP. */
+export function isBike(v: DealerVehicle): boolean {
+  return v.Type === "BIK";
+}
 
 /**
  * Server-only: fetches the Dealer Solutions MostRecentFile JSON.
@@ -34,5 +40,9 @@ export async function fetchDealerInventory(): Promise<DealerVehicle[]> {
   }
 
   const data = (await res.json()) as DealerInventoryFeed;
-  return Array.isArray(data.Vehicles) ? data.Vehicles : [];
+  if (!Array.isArray(data.Vehicles)) return [];
+  // Keep the sold-vehicle archive current. Fire-and-forget: it only does work
+  // when the export changes, and a failure there must never break a page.
+  void recordInventorySnapshot(data.Vehicles, data.DataFeed?.CreationDate ?? null);
+  return data.Vehicles;
 }

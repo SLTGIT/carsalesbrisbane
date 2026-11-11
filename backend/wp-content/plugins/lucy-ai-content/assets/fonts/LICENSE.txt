@@ -1,0 +1,9 @@
+Fonts included with Lucy
+------------------------
+Poppins-Regular.ttf, Poppins-Bold.ttf – Copyright (c) Indian Type Foundry, Jonny Pinhorn.
+Licensed under the SIL Open Font License, Version 1.1: https://scripts.sil.org/OFL
+
+DejaVuSerif-Bold.ttf – DejaVu Fonts, based on Bitstream Vera Fonts.
+Free licence: https://dejavu-fonts.github.io/License.html
+
+You can also upload your own .ttf or .otf font in Lucy → Image templates.

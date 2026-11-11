@@ -11,6 +11,7 @@ import {
   recoverPowertrain,
   simplifyTransmission,
 } from "@/lib/inventory/powertrain";
+import { isNewArrival } from "@/lib/inventory/new-arrival";
 import type { VehicleImage } from "@/types/vehicle";
 import type { VehicleEnquiryItemPayload } from "./VehicleEnquiryForm";
 import VehicleGallery from "./VehicleGallery";
@@ -25,6 +26,16 @@ import VdpDealerCommentsExpandable from "./VdpDealerCommentsExpandable";
 import VdpCarDetailsTabs from "./VdpCarDetailsTabs";
 import VdpShareLinks from "./VdpShareLinks";
 import { ORG_GOOGLE_MAPS_PLACE_URL, ORG_POSTAL_ADDRESS } from "@/lib/json-ld";
+import VdpPrimaryActions from "./VdpPrimaryActions";
+import VdpMobileActionBar from "./VdpMobileActionBar";
+import VdpEnquiryHashScroll from "./VdpEnquiryHashScroll";
+import VdpRecentlyViewed from "./VdpRecentlyViewed";
+import VdpFormSheet from "./VdpFormSheet";
+import { usefulVdpFaqs } from "@/lib/openai/vdp-faq-filter";
+import {
+  listingSourcedFeatures,
+  listingSourcedSpecRows,
+} from "@/lib/openai/vdp-spec-filter";
 
 const VehicleVdpRefInlineEnquiry = dynamic(
   () => import("./VehicleVdpRefInlineEnquiry"),
@@ -71,6 +82,9 @@ function buildFeedSpecRows(snapshot: VehicleVdpSnapshot): VehicleVdpAiSpecRow[] 
     .map((r) => ({ ...r, sourceTag: "listing" as const }));
 }
 const VehicleTestDriveForm = dynamic(() => import("./VehicleTestDriveForm"));
+const VehicleVideoWalkaroundRequest = dynamic(
+  () => import("./VehicleVideoWalkaroundRequest"),
+);
 const VehicleSimilarCarousel = dynamic(() => import("./VehicleSimilarCarousel"));
 
 function formatDealerAddress(): string {
@@ -78,18 +92,16 @@ function formatDealerAddress(): string {
   return `${a.streetAddress}, ${a.addressLocality}, ${a.addressRegion} ${a.postalCode}`;
 }
 
-function buildHeroSubtitle(
-  snapshot: VehicleVdpSnapshot,
-  heroBadge: string,
-): string {
-  const badge = heroBadge.trim();
-  if (badge) return badge;
-  const parts = [
-    snapshot.locationShort || "Brisbane",
-    `Dealer ${(snapshot.condition || "used").toLowerCase()}`,
-  ].filter(Boolean);
-  return parts.join(" · ");
-}
+/*
+ * There is deliberately no hero subtitle line.
+ *
+ * `ai.heroBadge` is generated to a fixed shape — "year · condition · body ·
+ * fuel" — and every one of those four already appears on this page: the year
+ * in the h1, the condition in the breadcrumb and the URL, and body type and
+ * fuel as their own Quick-spec tiles directly below. So the line could only
+ * ever restate what the reader had just read. The badge is still generated and
+ * cached; it simply is not printed here.
+ */
 
 function buildQuickSpecs(snapshot: VehicleVdpSnapshot): VdpQuickSpecItem[] {
   const odo =
@@ -115,7 +127,9 @@ function buildQuickSpecs(snapshot: VehicleVdpSnapshot): VdpQuickSpecItem[] {
   ];
 }
 
-function VdpFaqSection({ faqs }: { faqs: VehicleVdpAiFaq[] }) {
+function VdpFaqSection({ faqs: allFaqs }: { faqs: VehicleVdpAiFaq[] }) {
+  // Same filter feeds the FAQPage schema in page.tsx — the two must agree.
+  const faqs = usefulVdpFaqs(allFaqs);
   return (
     <section
       className="cs-card p-4 p-lg-5 mb-4 cs-faq vdp-ref-faq"
@@ -160,6 +174,14 @@ export interface VehicleVdpRefPageProps {
   snapshot: VehicleVdpSnapshot;
   ai: VehicleVdpAiContent;
   headline: string;
+  /**
+   * Page title split the way the vehicle card splits it: "2020 Mazda CX-8" on
+   * the first line, "Sport KG2WLA" on the second. Both come from the card's own
+   * helpers so the two pages cannot word the same car differently. Optional —
+   * without them the h1 falls back to the single-line {@link headline}.
+   */
+  titlePrimary?: string;
+  titleVariant?: string;
   featuredImage: string;
   galleryImages: VehicleImage[];
   listingTitle: string;
@@ -178,12 +200,19 @@ export interface VehicleVdpRefPageProps {
   shareUrl: string;
   /** WordPress CMS overview (tag-substituted), shown above Key highlights. */
   cmsOverview?: string;
+  /** Feed last-updated timestamp — shows the "New Arrival" badge while recent. */
+  lastUpdated?: string | null;
+  /** Google rating shown beside the primary actions. Omitted when unavailable. */
+  ratingScore?: number;
+  ratingCount?: number;
 }
 
 export default function VehicleVdpRefPage({
   snapshot,
   ai,
   headline,
+  titlePrimary = "",
+  titleVariant = "",
   featuredImage,
   galleryImages,
   listingTitle,
@@ -200,8 +229,11 @@ export default function VehicleVdpRefPage({
   similarItems,
   shareUrl,
   cmsOverview = "",
+  lastUpdated = null,
+  ratingScore,
+  ratingCount,
 }: VehicleVdpRefPageProps) {
-  const heroSubtitle = buildHeroSubtitle(snapshot, ai.heroBadge);
+  const showNewArrival = isNewArrival(lastUpdated);
   const quickSpecs = buildQuickSpecs(snapshot);
 
   const vdpAnalytics = {
@@ -223,11 +255,16 @@ export default function VehicleVdpRefPage({
       <VdpAnalytics {...vdpAnalytics} />
       <VdpScrollStickyBar
         headline={headline}
+        titlePrimary={titlePrimary}
+        titleVariant={titleVariant}
         priceMain={priceMain}
         priceCaption={priceCaption}
         vehicleImage={featuredImage || undefined}
         imageAlt={listingTitle}
       />
+      <VdpMobileActionBar ctx={vdpAnalytics} telHref={telHref} />
+      <VdpEnquiryHashScroll />
+      <VdpFormSheet item={enquiryItem} titleLine={headline} />
 
       <section className="vdp-ref-main pb-4 pb-md-5 pt-3 pt-md-4">
         <div className="container">
@@ -262,10 +299,25 @@ export default function VehicleVdpRefPage({
                     {breadcrumbMake || "Vehicles"}
                   </Link>
                 </nav>
-                <h1 className="vdp-ref-page-title display-6 fw-bold cs-title-tight mb-2">
-                  {headline}
+                {showNewArrival ? (
+                  <p className="mb-2">
+                    <span className="vdp-ref-new-arrival">
+                      <i className="bi bi-stars" aria-hidden />
+                      New Arrival
+                    </span>
+                  </p>
+                ) : null}
+                {/* Split like the vehicle card: the car on one line, its
+                    variant on the next, so a long badge and series no longer
+                    run into the model name. `headline` keeps the whole name on
+                    one line wherever a break would mean nothing — the sticky
+                    bar, share titles and image alt text. */}
+                <h1 className="vdp-ref-page-title display-6 fw-bold cs-title-tight mb-1">
+                  {titlePrimary || headline}
                 </h1>
-                <p className="vdp-ref-hero-subtitle mb-0">{heroSubtitle}</p>
+                {titleVariant ? (
+                  <p className="vdp-ref-page-variant mb-2">{titleVariant}</p>
+                ) : null}
                 {ai.heroLead.trim() ? (
                   <p className="cs-muted mt-2 mb-0 small">{ai.heroLead}</p>
                 ) : null}
@@ -289,12 +341,21 @@ export default function VehicleVdpRefPage({
                 <p className="vdp-ref-price-caption text-primary small fw-semibold mb-2 mt-1">
                   {priceCaption}
                 </p>
-                <p className="cs-muted small mb-0">
+                <p className="cs-muted small mb-3">
                   {showDriveAway
                     ? "Drive away price shown where applicable. "
                     : ""}
                   Finance available subject to approval.
                 </p>
+                {/* Mobile: the decision sits with the price, above the gallery
+                    and everything else. */}
+                <VdpPrimaryActions
+                  ctx={vdpAnalytics}
+                  telHref={telHref}
+                  dealerPhone={dealerPhone}
+                  ratingScore={ratingScore}
+                  ratingCount={ratingCount}
+                />
               </div>
 
               <div className="vdp-ref-gallery-wrap">
@@ -313,8 +374,6 @@ export default function VehicleVdpRefPage({
 
               <VdpQuickSpecsRow items={quickSpecs} />
 
-              <VdpCmsOverview text={cmsOverview} />
-
               <VdpKeyHighlights chips={ai.highlightChips} />
 
               <VdpDealerCommentsExpandable
@@ -322,15 +381,22 @@ export default function VehicleVdpRefPage({
                 featureBullets={ai.dealerCommentsBullets}
               />
 
+              {/* Only listing-sourced data is published; model-research
+                  estimates are filtered here on the server, so they are not
+                  in the page payload either. */}
               <VdpCarDetailsTabs
                 overviewParagraphs={ai.overviewParagraphs}
-                carDetailsRows={ai.carDetailsRows}
-                featureItems={ai.featureItems}
-                engineTowingRows={ai.engineTowingRows}
+                carDetailsRows={listingSourcedSpecRows(ai.carDetailsRows)}
+                featureItems={listingSourcedFeatures(ai.featureItems)}
+                engineTowingRows={listingSourcedSpecRows(ai.engineTowingRows)}
                 feedRows={buildFeedSpecRows(snapshot)}
               />
 
               <VdpFaqSection faqs={ai.faqs} />
+
+              {/* SEO overview sits below the FAQ: buyers get vehicle, price,
+                  specs and photos first; Google still gets the content. */}
+              <VdpCmsOverview text={cmsOverview} />
 
               <section
                 className="cs-card p-4 p-lg-5 mt-4 d-lg-none"
@@ -376,11 +442,32 @@ export default function VehicleVdpRefPage({
                 <VehicleTestDriveForm item={enquiryItem} />
               </section>
 
+              <section
+                className="cs-card p-4 p-lg-5 mt-4"
+                id="request-video"
+              >
+                <h2 className="h4 fw-bold mb-3">Request a video walkaround</h2>
+                <p className="cs-muted mb-3">
+                  Buying from outside Brisbane, or cannot get to the yard yet?
+                  Ask for a walkaround video of this vehicle and we will send it
+                  through.
+                </p>
+                <VehicleVideoWalkaroundRequest item={enquiryItem} />
+              </section>
+
               {similarItems.length > 0 ? (
                 <div className="cs-card p-4 p-lg-5 mb-4 vdp-ref-main-similar mt-4">
                   <VehicleSimilarCarousel items={similarItems} />
                 </div>
               ) : null}
+
+              <VdpRecentlyViewed
+                current={{
+                  slug: snapshot.slug,
+                  title: headline,
+                  image: featuredImage,
+                }}
+              />
             </div>
 
             <aside className="col-lg-4 vdp-ref-sidebar">
@@ -396,12 +483,19 @@ export default function VehicleVdpRefPage({
                   <p className="vdp-ref-price-caption text-primary small fw-semibold mb-2">
                     {priceCaption}
                   </p>
-                  <p className="cs-muted small mb-0">
+                  <p className="cs-muted small mb-3">
                     {showDriveAway
                       ? "Drive away price shown where applicable. "
                       : ""}
                     Finance available subject to approval.
                   </p>
+                  <VdpPrimaryActions
+                    ctx={vdpAnalytics}
+                    telHref={telHref}
+                    dealerPhone={dealerPhone}
+                    ratingScore={ratingScore}
+                    ratingCount={ratingCount}
+                  />
                 </div>
 
                 <div

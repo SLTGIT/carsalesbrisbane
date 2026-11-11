@@ -90,3 +90,81 @@
 .vehicles-page.inventory-srp .inventory-card-detail-btn--outline .inventory-card-detail-arrow {
   font-size: 1.15rem;
 }
+
+/*
+  Quick-start categories above the results. Buyers who do not know the exact
+  model still know their budget, fuel or body shape.
+*/
+.inventory-quick-chips {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 0.5rem 0.75rem;
+  margin: 0 0 1rem;
+}
+
+.inventory-quick-chips__label {
+  font-size: 0.8rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  color: var(--cs-muted);
+}
+
+.inventory-quick-chips__list {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.45rem;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.inventory-quick-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+  min-height: 36px;
+  padding: 0.35rem 0.75rem;
+  border-radius: 999px;
+  border: 1px solid var(--cs-line);
+  background: #fff;
+  color: var(--cs-ink);
+  font-size: 0.85rem;
+  font-weight: 600;
+  text-decoration: none;
+  transition: border-color 0.15s ease, background 0.15s ease;
+}
+
+.inventory-quick-chip:hover,
+.inventory-quick-chip:focus-visible {
+  border-color: var(--cs-primary);
+  background: rgba(0, 120, 255, 0.05);
+  color: var(--cs-ink);
+}
+
+.inventory-quick-chip__count {
+  font-size: 0.75rem;
+  font-weight: 700;
+  color: var(--cs-muted);
+}
+
+/*
+  Phones: a shorter hero, so stock starts sooner. At 32px the heading ran to
+  three lines and, with the section's desktop padding, pushed the quick
+  searches and the first vehicle well down the screen.
+*/
+@media (max-width: 575px) {
+  .search-page-hero-title {
+    font-size: 24px;
+  }
+
+  .search-page-hero .py-5 {
+    padding-top: 1.25rem !important;
+    padding-bottom: 1.25rem !important;
+  }
+
+  .search-page-hero-lead {
+    font-size: 0.9rem;
+  }
+}

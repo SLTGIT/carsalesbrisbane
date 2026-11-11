@@ -66,6 +66,11 @@ export default function VehicleGallery({
   const selectedImage = allImages[index]?.url ?? "";
 
   const showMorePhotosCard = allImages.length > GRID_THUMB_MAX;
+  /** Behind the count: a peek at the next few photos beats an empty white tile. */
+  const morePreviewImages = allImages.slice(
+    GRID_THUMB_MAX,
+    GRID_THUMB_MAX + 4,
+  );
   const gridPreviewImages = showMorePhotosCard
     ? allImages.slice(0, GRID_THUMB_MAX)
     : allImages;
@@ -337,8 +342,26 @@ export default function VehicleGallery({
                 openLightboxAt(GRID_THUMB_MAX);
               }}
             >
+              <span className="vehicle-gallery__grid-more-mosaic" aria-hidden>
+                {morePreviewImages.map((image, i) => (
+                  <span
+                    key={`more-${image.url}-${i}`}
+                    className="vehicle-gallery__grid-more-cell"
+                  >
+                    <Image
+                      src={image.url}
+                      alt=""
+                      fill
+                      className="vehicle-gallery__grid-more-img"
+                      sizes="6vw"
+                      loading="lazy"
+                      quality={40}
+                    />
+                  </span>
+                ))}
+              </span>
               <span className="vehicle-gallery__grid-more-text">
-                {allImages.length} photos listed
+                +{allImages.length - GRID_THUMB_MAX} more
               </span>
             </button>
           ) : null}
