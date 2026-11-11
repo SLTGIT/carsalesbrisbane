@@ -17,9 +17,53 @@ import {
   priceNumber,
 } from "@/lib/inventory/transform";
 
+const NAMED_HTML_ENTITIES: Record<string, string> = {
+  amp: "&",
+  lt: "<",
+  gt: ">",
+  quot: '"',
+  apos: "'",
+  nbsp: " ",
+  ndash: "–",
+  mdash: "—",
+  lsquo: "‘",
+  rsquo: "’",
+  ldquo: "“",
+  rdquo: "”",
+  hellip: "…",
+  laquo: "«",
+  raquo: "»",
+  copy: "©",
+  reg: "®",
+  trade: "™",
+  deg: "°",
+  times: "×",
+};
+
+/**
+ * Decode HTML entities that WordPress puts in rendered titles/excerpts
+ * (e.g. `Won&#8217;t` → `Won’t`, `&#038;` → `&`). Single pass, so
+ * `&amp;#8217;` becomes the literal text `&#8217;`, as in a browser.
+ */
+export function decodeHtmlEntities(text: string): string {
+  return text.replace(
+    /&(#\d+|#x[0-9a-f]+|[a-z][a-z0-9]*);/gi,
+    (match, entity: string) => {
+      if (entity[0] === "#") {
+        const isHex = entity[1] === "x" || entity[1] === "X";
+        const codePoint = parseInt(entity.slice(isHex ? 2 : 1), isHex ? 16 : 10);
+        return codePoint > 0 && codePoint <= 0x10ffff
+          ? String.fromCodePoint(codePoint)
+          : match;
+      }
+      return NAMED_HTML_ENTITIES[entity.toLowerCase()] ?? match;
+    },
+  );
+}
+
+/** HTML → plain text: drops tags, decodes entities, collapses whitespace. */
 export function stripHtml(html: string): string {
-  return html
-    .replace(/<[^>]*>/g, "")
+  return decodeHtmlEntities(html.replace(/<[^>]*>/g, ""))
     .replace(/\s+/g, " ")
     .trim();
 }

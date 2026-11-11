@@ -36,8 +36,6 @@ export async function fetchAPI<T>(endpoint: string, options: RequestInit = {}): 
             ...headers,
             ...(options.headers as Record<string, string>),
         },
-        cache: 'force-cache',
-        next: { revalidate: 3600 },
         // cache: 'no-store',
     });
 
@@ -74,8 +72,6 @@ export async function fetchAPIWithMeta<T>(
             ...headers,
             ...(options.headers as Record<string, string>),
         },
-        cache: 'force-cache',
-        next: { revalidate: 3600 },
     });
 
     if (!response.ok) {
