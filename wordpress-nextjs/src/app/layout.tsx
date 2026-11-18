@@ -151,6 +151,12 @@ export default async function RootLayout({
           src="https://dealerdrive.us/static/pixel/dd-pixel.js?v=3"
           strategy="afterInteractive"
         />
+        {/* DealerDrive website chat (same assistant as Drive Engage). Loaded last so it never slows the page. */}
+        <Script
+          src="https://dealerdrive.us/api/v1/chatbot/embed.js?key=8TM0gXYI-L35ilujfs9PrrDAeaAQta8s"
+          strategy="lazyOnload"
+          data-dd-tag="dealerdrive-chat"
+        />
         <ClientImports />
         <Layout>{children}</Layout>
       </body>

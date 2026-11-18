@@ -49,3 +49,8 @@ next-env.d.ts
 
 # Sold-vehicle archive written at runtime (src/lib/inventory/sold-archive.ts)
 /data/
+
+# build-and-switch deploys
+.next-a/
+.next-b/
+.next-slot

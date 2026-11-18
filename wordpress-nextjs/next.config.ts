@@ -1,6 +1,25 @@
 import type { NextConfig } from "next";
+import { readFileSync } from "fs";
+
+/**
+ * Which build folder to use. Production deploys (/var/www/deploy-csb.sh) build
+ * into whichever of .next-a / .next-b is NOT serving, passing NEXT_DIST_DIR,
+ * then write that name to .next-slot and restart. So a failed build never
+ * touches the live site. `next start` reads .next-slot; without either (local
+ * dev) it is the usual .next.
+ */
+function buildDir(): string {
+  const fromEnv = process.env.NEXT_DIST_DIR?.trim();
+  if (fromEnv) return fromEnv;
+  try {
+    return readFileSync(".next-slot", "utf8").trim() || ".next";
+  } catch {
+    return ".next";
+  }
+}
 
 const nextConfig: NextConfig = {
+  distDir: buildDir(),
   async redirects() {
     return [
       {
